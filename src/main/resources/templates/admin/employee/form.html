@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/main :: layout(~{::content}, 'Employee Form')">
+
+<div th:fragment="content">
+
+    <div class="card" style="margin-top: 70px">
+        <div class="card-header">
+            <h4 th:text="${emp.id} == null ? 'Add Employee' : 'Edit Employee'"></h4>
+        </div>
+        <div class="card-body">
+
+            <form th:action="@{/employees/save}" th:object="${emp}" method="post" enctype="multipart/form-data">
+
+                <input type="hidden" th:field="*{id}"/>
+                <!--                <input type="hidden" th:field="*{tableNum}">-->
+                <div class="mb-3">
+                    <label class="form-label">Name</label>
+                    <input class="form-control" type="text" th:field="*{name}" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email</label>
+                    <input class="form-control" type="text" th:field="*{email}" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Phone</label>
+                    <input class="form-control" type="text" th:field="*{phone}" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Department</label>
+                    <input class="form-control" type="text" th:field="*{department}" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Salary</label>
+                    <input class="form-control" type="number"
+                           th:field="*{salary}" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Username</label>
+                    <input class="form-control" type="text" th:field="*{username}" required>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password</label>
+                    <input class="form-control" type="text" th:field="*{password}" required>
+                </div>
+                <button class="btn btn-success" type="submit">
+                    Save
+                </button>
+                <a class="btn btn-secondary" th:href="@{/employees}">
+                    Cancel
+                </a>
+
+            </form>
+
+        </div>
+    </div>
+
+</div>
+</html>

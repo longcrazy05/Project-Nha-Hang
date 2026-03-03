@@ -1,0 +1,43 @@
+package com.ttcs.ttcs.controller.admin;
+
+import com.ttcs.ttcs.enity.Employee;
+import com.ttcs.ttcs.service.EmployeeService;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+@Controller
+@RequestMapping("/employees")
+public class EmployeeController {
+    private final EmployeeService employeeService;
+
+    public EmployeeController(EmployeeService employeeService) {
+        this.employeeService = employeeService;
+    }
+
+    @GetMapping
+    public String listEmployee(Model model){
+        model.addAttribute("employees", employeeService.findAllEmp());
+        return "admin/employee/list";
+    }
+    @GetMapping("/create")
+    public String showCreateForm(Model model){
+        model.addAttribute("emp", new Employee());
+        return "admin/employee/form";
+    }
+    @GetMapping("/edit/{id}")
+    public String showEditForm(@PathVariable Long id, Model model){
+        model.addAttribute("emp", employeeService.findById(id));
+        return "admin/employee/form";
+    }
+    @PostMapping("/save")
+    public String saveEmp(@ModelAttribute Employee emp){
+        employeeService.saveEmployee(emp);
+        return "redirect:/employees";
+    }
+    @PostMapping("/delete/{id}")
+    public String deleteEmp(@PathVariable Long id){
+        employeeService.delete(id);
+        return "redirect:/employees";
+    }
+}

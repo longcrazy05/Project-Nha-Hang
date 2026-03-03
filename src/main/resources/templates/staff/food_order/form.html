@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+  <title>Order Form</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="container mt-4">
+
+<h3 th:text="${order.id == null} ? 'Tạo Order' : 'Chỉnh sửa Order'"></h3>
+
+<form th:action="@{/staff/orders/save}" th:object="${order}" method="post">
+
+  <!-- ID (hidden khi edit) -->
+  <input type="hidden" th:field="*{id}" />
+
+  <div class="mb-3">
+    <input type="hidden" th:field="*{reservation.id}">
+    <label>Reservation</label>
+    <select class="form-control" name="reservationId">
+
+      <option value="">New (Khách gọi trực tiếp)</option>
+
+      <option th:each="r : ${todayReservations}"
+              th:value="${r.id}"
+              th:text="${r.customer.name + ' - ' + r.customer.phone}">
+      </option>
+
+    </select>
+  </div>
+
+  <!-- Order Type -->
+<!--  <div class="mb-3" >-->
+<!--    <label class="form-label">Loại Order</label>-->
+<!--    <select class="form-control" th:field="*{orderType}" required>-->
+<!--      <option value="DINE_IN">Dine In</option>-->
+<!--      <option value="TAKE_AWAY">Take Away</option>-->
+<!--    </select>-->
+<!--  </div>-->
+  <div class="mb-3" th:if="${order.reservation != null
+                  && order.reservation.table != null}">
+    <label class="form-label">Hình thức: </label>
+    <span th:text="' Bàn số ' + ${order.reservation.table.tableNum}">
+    </span>
+
+    <span th:if="${order.reservation == null
+                  || order.reservation.table == null}">
+        Mang đi
+    </span>
+  </div>
+  <div class="mb-3" th:if="${order.reservation == null
+                  || order.reservation.table == null}">
+    <label>Chọn bàn</label>
+    <select class="form-control" name="tableId" required>
+
+      <!-- Bàn 0 (Mang đi) -->
+      <option value="0">Bàn 0 - Mang đi</option>
+
+      <!-- Bàn trống -->
+      <option th:each="t : ${tables}"
+              th:value="${t.id}"
+              th:text="'Bàn ' + ${t.tableNum} + ' (' +${t.capacity} +')'">
+      </option>
+
+    </select>
+  </div>
+  <!-- Payment Method -->
+  <div class="mb-3" th:if="${order.paidAt == null && order.totalAmount != null}">
+    <label class="form-label">Phương thức thanh toán</label>
+    <select class="form-control" th:field="*{paymentMethod}">
+      <option value="CASH">Tiền mặt</option>
+      <option value="CARD">Thẻ</option>
+    </select>
+  </div>
+
+  <!-- Customer ID -->
+  <div class="mb-3">
+    <label class="form-label">Customer ID</label>
+    <input type="number" class="form-control"
+           value="1"
+           th:field="*{customer.id}" required>
+  </div>
+
+  <!-- Employee ID -->
+  <div class="mb-3">
+    <label class="form-label">Employee</label>
+    <select class="form-control" th:field="*{employee.id}">
+      <option th:each="e : ${employees}"
+              th:value="${e.id}"
+              th:text="${e.name} +' - '+${e.id}">
+      </option>
+    </select>
+  </div>
+
+  <!-- Reservation ID -->
+<!--  <div class="mb-3">-->
+<!--    <label class="form-label">Reservation ID</label>-->
+<!--    <input type="number" class="form-control"-->
+<!--           th:field="*{reservation.id}">-->
+<!--  </div>-->
+
+  <!-- Tổng tiền (readonly khi edit) -->
+  <div class="mb-3" th:if="${order.id != null}">
+    <label class="form-label">Tổng tiền</label>
+    <input type="text" class="form-control"
+           th:field="*{totalAmount}"
+           th:value="${order.totalAmount}" readonly>
+  </div>
+
+  <input type="hidden" th:field="*{openedAt}">
+  <input type="hidden" th:field="*{paidAt}">
+  <input type="hidden" th:value="${selectedDate}" name="redirectDate">
+
+  <button th:if="${order.openedAt != null}"
+          type="submit" class="btn btn-primary" name="action" value="save">Lưu</button>
+  <button th:if="${order.openedAt == null}"
+          type="submit" class="btn btn-primary" name="action" value="create">Tạo</button>
+  <button type="submit" class="btn btn-success" name="action" value="paid"
+          th:if="${order.paidAt==null && order.totalAmount != null}">Xác nhận thanh toán</button>
+  <button type="submit" class="btn btn-secondary" name="action" value="back">Quay lại</button>
+
+</form>
+
+</body>
+</html>

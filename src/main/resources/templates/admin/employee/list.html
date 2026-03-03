@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/main :: layout(~{::content}, 'Employee List')">
+
+<div th:fragment="content" style="margin-top: 70px">
+
+    <div class="d-flex justify-content-between mb-3">
+        <h2>Employee List</h2>
+        <div>
+            <a class="btn btn-primary" th:href="@{/employees/create}">
+                + Add employee
+            </a>
+        </div>
+    </div>
+
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone</th>
+            <th>Department</th>
+            <th>Salary</th>
+            <th>Username</th>
+            <th>Password</th>
+            <th width="180">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="emp : ${employees}">
+            <td th:text="${emp.id}"></td>
+            <td th:text="${emp.name}"></td>
+            <td th:text="${emp.email}"></td>
+            <td th:text="${emp.phone}"></td>
+            <td th:text="${emp.department}"></td>
+            <td th:text="${emp.salary}"></td>
+            <td th:text="${emp.username}"></td>
+            <td th:text="${emp.password}"></td>
+            <td>
+                <a class="btn btn-sm btn-warning"
+                   th:href="@{/employees/edit/{id}(id=${emp.id})}">
+                    Edit
+                </a>
+
+                <form th:action="@{/employees/delete/{id}(id=${emp.id})}"
+                      method="post"
+                      style="display:inline"
+                      th:onsubmit="return confirm('Delete employee:\n'
+                        + 'Name: [[${emp.name}]]\n'
+                        + 'Phone: [[${emp.phone}]]\n'
+                        + 'Department: [[${emp.department}]]\n'
+                        + 'Salary: [[${emp.salary}]]\n\n'
+                        + 'Are you sure?')">
+
+                    <button class="btn btn-sm btn-danger" type="submit">
+                        Delete
+                    </button>
+                </form>
+
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+</div>
+</html>

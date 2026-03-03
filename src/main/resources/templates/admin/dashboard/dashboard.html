@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/main :: layout(~{::content}, 'Dashboard')">
+
+<div th:fragment="content" style="margin-top:70px">
+
+    <h2>Admin Dashboard</h2>
+
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <div class="card p-3">
+                <h5 th:text="'Today Revenue ('+${today}+')'"></h5>
+                <h3 th:text="${todayRevenue} + ' VND - ' + ${todayQuantityOrder} + ' Orders'"></h3>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="card p-3">
+                <h5>This Month Revenue</h5>
+                <h3 th:text="${monthRevenue} + ' VND - ' + ${monthQuantityOder}+' Orders'"></h3>
+            </div>
+        </div>
+    </div>
+
+    <div class="card p-4">
+        <h5>Revenue by Month</h5>
+        <form method="get" th:action="@{/dashboard}">
+            <select name="year"
+                    class="form-select"
+                    onchange="this.form.submit()">
+
+                <option th:each="y : ${years}"
+                        th:value="${y}"
+                        th:text="${y}"
+                        th:selected="${y == selectedYear}">
+                </option>
+
+            </select>
+        </form>
+        <canvas id="revenueChart"></canvas>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script th:inline="javascript">
+        const labels = [[${labels}]];
+        const data = [[${values}]];
+
+        new Chart(document.getElementById('revenueChart'), {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Revenue',
+                    data: data
+                }]
+            }
+        });
+    </script>
+
+</div>
+</html>

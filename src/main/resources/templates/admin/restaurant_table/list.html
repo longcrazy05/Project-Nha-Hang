@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/main :: layout(~{::content}, 'Table List')">
+
+<div th:fragment="content" style="margin-top: 70px">
+
+    <div class="d-flex justify-content-between mb-3">
+        <h2>Table List</h2>
+        <div>
+            <a class="btn btn-primary" th:href="@{/tables/create}">
+                + Add Table
+            </a>
+        </div>
+    </div>
+
+    <table class="table table-bordered table-striped">
+        <thead class="table-dark">
+        <tr>
+            <th>ID</th>
+            <th>Table number</th>
+            <th>Capacity</th>
+
+            <th>Available</th>
+            <th width="180">Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr th:each="table : ${tables}">
+            <td th:text="${table.id}"></td>
+            <td th:text="${table.tableNum}"></td>
+
+            <td th:text="${table.capacity}"></td>
+
+            <td>
+                <span class="badge"
+                      th:classappend="${table.available} ? 'bg-success' : 'bg-secondary'"
+                      th:text="${table.available} ? 'Available' : 'Unavailable'">
+                </span>
+            </td>
+            <td>
+                <a class="btn btn-sm btn-warning"
+                   th:href="@{/tables/edit/{id}(id=${table.id})}">
+                    Edit
+                </a>
+
+                <a class="btn btn-sm btn-secondary"
+                   th:href="@{/tables/toggle/{id}(id=${table.id})}">
+                    Toggle
+                </a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+
+</div>
+</html>
