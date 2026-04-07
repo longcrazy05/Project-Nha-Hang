@@ -4,55 +4,106 @@
 
 <div th:fragment="content">
 
-    <div class="card" style="margin-top: 70px">
-        <div class="card-header">
-            <h4 th:text="${emp.id} == null ? 'Add Employee' : 'Edit Employee'"></h4>
-        </div>
-        <div class="card-body">
+    <div class="card p-4">
 
-            <form th:action="@{/employees/save}" th:object="${emp}" method="post" enctype="multipart/form-data">
+        <!-- Title -->
+        <h4 class="mb-4 fw-bold"
+            th:text="${emp.id} == null ? '➕ Add Employee' : '✏️ Edit Employee'">
+        </h4>
 
-                <input type="hidden" th:field="*{id}"/>
-                <!--                <input type="hidden" th:field="*{tableNum}">-->
-                <div class="mb-3">
-                    <label class="form-label">Name</label>
-                    <input class="form-control" type="text" th:field="*{name}" required>
+        <form th:action="@{/admin/employees/save}"
+              th:object="${emp}"
+              method="post"
+              enctype="multipart/form-data">
+
+            <input type="hidden" th:field="*{id}"/>
+
+            <div class="row">
+
+                <!-- LEFT -->
+                <div class="col-md-6">
+
+                    <div class="mb-3">
+                        <label class="form-label">Name</label>
+                        <input class="form-control"
+                               type="text"
+                               th:field="*{name}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Phone</label>
+                        <input class="form-control"
+                               type="text"
+                               th:field="*{phone}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input class="form-control"
+                               type="email"
+                               th:field="*{email}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Department</label>
+                        <input class="form-control"
+                               type="text"
+                               th:field="*{department}" required>
+                    </div>
+
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Email</label>
-                    <input class="form-control" type="text" th:field="*{email}" required>
+
+                <!-- RIGHT -->
+                <div class="col-md-6">
+
+                    <div class="mb-3">
+                        <label class="form-label">Salary</label>
+                        <input class="form-control"
+                               type="number"
+                               th:field="*{salary}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Username</label>
+                        <input class="form-control"
+                               type="text"
+                               th:field="*{username}" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input class="form-control"
+                               type="text"
+
+                               th:field="*{password}" required>
+                    </div>
+
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Phone</label>
-                    <input class="form-control" type="text" th:field="*{phone}" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Department</label>
-                    <input class="form-control" type="text" th:field="*{department}" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Salary</label>
-                    <input class="form-control" type="number"
-                           th:field="*{salary}" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Username</label>
-                    <input class="form-control" type="text" th:field="*{username}" required>
-                </div>
-                <div class="mb-3">
-                    <label class="form-label">Password</label>
-                    <input class="form-control" type="text" th:field="*{password}" required>
-                </div>
-                <button class="btn btn-success" type="submit">
-                    Save
+
+            </div>
+
+            <!-- Error -->
+            <div class="alert alert-danger"
+                 th:if="${error}"
+                 th:text="${error}">
+            </div>
+
+            <!-- Actions -->
+            <div class="mt-3">
+
+                <button class="btn btn-success px-4" type="submit">
+                    💾 Save
                 </button>
-                <a class="btn btn-secondary" th:href="@{/employees}">
+
+                <a class="btn btn-secondary ms-2"
+                   th:href="@{/admin/employees}">
                     Cancel
                 </a>
 
-            </form>
+            </div>
 
-        </div>
+        </form>
+
     </div>
 
 </div>

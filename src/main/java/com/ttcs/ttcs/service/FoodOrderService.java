@@ -8,6 +8,8 @@ import com.ttcs.ttcs.repository.CustomerRepository;
 import com.ttcs.ttcs.repository.FoodOrderRepository;
 import com.ttcs.ttcs.repository.ReservationRepository;
 import com.ttcs.ttcs.repository.RestaurantTableRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,13 +23,15 @@ public class FoodOrderService {
     private final ReservationRepository reservationRepository;
     private final RestaurantTableRepository tableRepository;
     private final CustomerRepository customerRepository;
-
+    private final SimpMessagingTemplate messagingTemplate;
     public FoodOrderService(FoodOrderRepository foodOrderRepository, ReservationRepository reservationRepository, RestaurantTableRepository tableRepository,
-                            CustomerRepository customerRepository) {
+                            CustomerRepository customerRepository,
+                            SimpMessagingTemplate  messagingTemplate) {
         this.foodOrderRepository = foodOrderRepository;
         this.reservationRepository = reservationRepository;
         this.tableRepository = tableRepository;
         this.customerRepository = customerRepository;
+        this.messagingTemplate = messagingTemplate;
     }
 
     public Long getTodayRevenue(){
@@ -46,8 +50,8 @@ public class FoodOrderService {
         return foodOrderRepository.getMonthQuantityOrder();
     }
 
-    public List<Object[]> getRevenueByMonth(int year) {
-        return foodOrderRepository.getRevenueByMonth(year);
+    public List<Object[]> getRevenueAndOrderByMonth(int year) {
+        return foodOrderRepository.getRevenueAndOrderByMonth(year);
     }
 
     // today list
@@ -125,6 +129,7 @@ public class FoodOrderService {
 
             reservation.setCustomer(guest);
             reservation.setReservationTime(LocalDateTime.now());
+            reservation.setReservationType("ON_SITE");
             reservation.setStatus("IN_USE");
 
             if (tableId != null && tableId != 0) {
@@ -162,5 +167,17 @@ public class FoodOrderService {
 
             reservation.setStatus("DONE");
         }
+        messagingTemplate.convertAndSend("/topic/dashboard", "update");
+    }
+    // ds order theo customer
+    public List<FoodOrder> customerOrderList(Long id){
+        return foodOrderRepository.findByCustomerIdOrderByOpenedAtDesc(id);
+    }
+    public Long totalSpent(Long id){
+        return foodOrderRepository.totalSpent(id);
+    }
+
+    public List<Object[]> weekStats(Long id){
+        return foodOrderRepository.weekStats(id);
     }
 }

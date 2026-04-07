@@ -2,55 +2,91 @@
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="layout/main :: layout(~{::content}, 'Table List')">
 
-<div th:fragment="content" style="margin-top: 70px">
+<div th:fragment="content">
 
-    <div class="d-flex justify-content-between mb-3">
-        <h2>Table List</h2>
-        <div>
-            <a class="btn btn-primary" th:href="@{/tables/create}">
-                + Add Table
-            </a>
-        </div>
+    <!-- Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">🍽 Table Management</h2>
+
+        <a class="btn btn-primary px-3"
+           th:href="@{/admin/tables/create}">
+            + Add Table
+        </a>
     </div>
 
-    <table class="table table-bordered table-striped">
-        <thead class="table-dark">
-        <tr>
-            <th>ID</th>
-            <th>Table number</th>
-            <th>Capacity</th>
+    <!-- Table Card -->
+    <div class="card p-3">
 
-            <th>Available</th>
-            <th width="180">Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr th:each="table : ${tables}">
-            <td th:text="${table.id}"></td>
-            <td th:text="${table.tableNum}"></td>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle fixed-table">
 
-            <td th:text="${table.capacity}"></td>
+                <thead class="table-light">
+                <tr>
+                    <th style="width: 60px;">ID</th>
+                    <th style="width: 120px;">Table No.</th>
+                    <th style="width: 150px;">Capacity</th>
+                    <th style="width: 180px;">Status</th>
+                    <th style="width: 200px;">Actions</th>
+                </tr>
+                </thead>
 
-            <td>
-                <span class="badge"
-                      th:classappend="${table.available} ? 'bg-success' : 'bg-secondary'"
-                      th:text="${table.available} ? 'Available' : 'Unavailable'">
-                </span>
-            </td>
-            <td>
-                <a class="btn btn-sm btn-warning"
-                   th:href="@{/tables/edit/{id}(id=${table.id})}">
-                    Edit
-                </a>
+                <tbody>
+                <tr th:each="table : ${tables}">
 
-                <a class="btn btn-sm btn-secondary"
-                   th:href="@{/tables/toggle/{id}(id=${table.id})}">
-                    Toggle
-                </a>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+                    <td th:text="${table.id}"></td>
+
+                    <td class="fw-semibold"
+                        th:text="${table.tableNum}"></td>
+
+                    <td>
+                        <span class="badge bg-info text-dark">
+                            <span th:text="${table.capacity} + ' seats'"></span>
+                        </span>
+                    </td>
+
+                    <td>
+                        <span class="badge w-100"
+                              th:classappend="${table.available} ? 'bg-success' : 'bg-secondary'"
+                              th:text="${table.available ? '🟢 Available' : '⚪ Unavailable'}">
+                        </span>
+                    </td>
+
+                    <td>
+
+                        <a class="btn btn-sm btn-warning me-1"
+                           th:href="@{/admin/tables/edit/{id}(id=${table.id})}">
+                            ✏️ Edit
+                        </a>
+
+                        <a class="btn btn-sm btn-outline-primary"
+                           th:href="@{/admin/tables/toggle/{id}(id=${table.id})}">
+                            🔄 Toggle
+                        </a>
+
+                    </td>
+
+                </tr>
+                </tbody>
+
+            </table>
+        </div>
+
+    </div>
+
+    <!-- CSS FIX -->
+    <style>
+        .fixed-table {
+            table-layout: fixed;
+            width: 100%;
+        }
+
+        .fixed-table th,
+        .fixed-table td {
+            text-align: center;
+            vertical-align: middle;
+            padding: 12px;
+        }
+    </style>
 
 </div>
 </html>

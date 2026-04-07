@@ -36,4 +36,8 @@ public class RestaurantTableService {
         table.setAvailable(available);
         saveTable(table);
     }
+    // ds bàn trống
+    public List<RestaurantTable> availableTables(){
+        return tableRepository.findByAvailableTrue();
+    }
 }

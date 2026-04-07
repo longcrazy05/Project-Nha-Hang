@@ -1,5 +1,6 @@
 package com.ttcs.ttcs.controller.staff;
 
+import com.ttcs.ttcs.enity.Customer;
 import com.ttcs.ttcs.enity.FoodOrder;
 import com.ttcs.ttcs.enity.RestaurantTable;
 import com.ttcs.ttcs.service.*;
@@ -73,6 +74,11 @@ public class FoodOrderController {
         if("create".equals(action)){
             if (tableId == 0) foodOrder.setOrderType("TAKE AWAY");
             else foodOrder.setOrderType("DINE IN");
+            if(foodOrder.getCustomer()==null || foodOrder.getCustomer().getId()==null){
+                Customer c = new Customer();
+                c.setId(1L);
+                foodOrder.setCustomer(c);
+            }
             foodOrderService.createOrder(foodOrder, reservationId, tableId);
         }
         if("paid".equals(action)){

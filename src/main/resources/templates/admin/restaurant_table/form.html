@@ -4,47 +4,77 @@
 
 <div th:fragment="content">
 
-    <div class="card" style="margin-top: 70px">
-        <div class="card-header">
-            <h4 th:text="${table.id} == null ? 'Add Table' : 'Edit Table'"></h4>
-        </div>
-        <div class="card-body">
+    <div class="card p-4">
 
-            <form th:action="@{/tables/save}" th:object="${table}" method="post" enctype="multipart/form-data">
+        <!-- Title -->
+        <h4 class="mb-4 fw-bold"
+            th:text="${table.id} == null ? '➕ Add Table' : '✏️ Edit Table'">
+        </h4>
 
-                <input type="hidden" th:field="*{id}"/>
-<!--                <input type="hidden" th:field="*{tableNum}">-->
-                <div class="mb-3">
-                    <label class="form-label">Table number</label>
-                    <input class="form-control" type="text" th:field="*{tableNum}" required>
+        <form th:action="@{/admin/tables/save}"
+              th:object="${table}"
+              method="post">
+
+            <input type="hidden" th:field="*{id}"/>
+
+            <div class="row">
+
+                <!-- LEFT -->
+                <div class="col-md-6">
+
+                    <div class="mb-3">
+                        <label class="form-label">Table Number</label>
+                        <input class="form-control"
+                               type="text"
+                               th:field="*{tableNum}"
+                               placeholder="e.g. A1, B2..."
+                               required>
+                    </div>
+
                 </div>
 
+                <!-- RIGHT -->
+                <div class="col-md-6">
 
-                <div class="mb-3">
-                    <label class="form-label">Capacity</label>
-                    <input class="form-control" type="number"
-                           th:field="*{capacity}" required>
+                    <div class="mb-3">
+                        <label class="form-label">Capacity</label>
+                        <input class="form-control"
+                               type="number"
+                               th:field="*{capacity}"
+                               placeholder="Number of seats"
+                               required>
+                    </div>
+
                 </div>
 
-                <div class="form-check mb-3">
-                    <input class="form-check-input"
-                           type="checkbox"
-                           th:field="*{available}">
-                    <label class="form-check-label">
-                        Available
-                    </label>
-                </div>
+            </div>
 
-                <button class="btn btn-success" type="submit">
-                    Save
+            <!-- Switch -->
+            <div class="form-check form-switch mb-3">
+                <input class="form-check-input"
+                       type="checkbox"
+                       th:field="*{available}">
+                <label class="form-check-label">
+                    Available
+                </label>
+            </div>
+
+            <!-- Actions -->
+            <div class="mt-3">
+
+                <button class="btn btn-success px-4" type="submit">
+                    💾 Save
                 </button>
-                <a class="btn btn-secondary" th:href="@{/tables}">
+
+                <a class="btn btn-secondary ms-2"
+                   th:href="@{/admin/tables}">
                     Cancel
                 </a>
 
-            </form>
+            </div>
 
-        </div>
+        </form>
+
     </div>
 
 </div>

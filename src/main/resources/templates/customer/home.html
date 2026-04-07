@@ -1,10 +1,241 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/customer :: layout(~{::content}, 'Home')">
 
-</body>
+<div th:fragment="content">
+
+    <div class="row">
+
+        <!-- MENU -->
+        <div class="col-md-8 col-lg-9">
+
+            <div class="card p-4 mb-4 shadow-sm border-0 rounded-4">
+                <h4 class="mb-4 text-primary">🍔 Thực đơn</h4>
+
+                <div class="row">
+
+                    <div class="col-lg-3 col-md-4 col-6 mb-4" th:each="f : ${foods}">
+
+                        <div class="card h-100 shadow-sm d-flex flex-column">
+
+                            <img th:src="@{'/images/' + ${f.image_url}}"
+                                 class="card-img-top"
+                                 style="height:160px; object-fit:cover;">
+
+                            <div class="card-body text-center d-flex flex-column justify-content-between">
+
+                                <div>
+                                    <h6 class="fw-bold" th:text="${f.name}"></h6>
+                                    <p class="text-danger fw-bold"
+                                       th:text="${#numbers.formatDecimal(f.price, 0, 'COMMA', 0, 'POINT')} + ' đ'"></p>
+                                </div>
+
+                                <div>
+                                    <div class="input-group input-group-sm mb-2">
+
+                                        <button class="btn btn-outline-secondary"
+                                                type="button"
+                                                th:onclick="updateInputQty('qty-[[${f.id}]]', -1)">-</button>
+
+                                        <input type="number"
+                                               class="form-control text-center qty-input"
+                                               th:id="'qty-' + ${f.id}"
+                                               value="1" min="1">
+
+                                        <button class="btn btn-outline-secondary"
+                                                type="button"
+                                                th:onclick="updateInputQty('qty-[[${f.id}]]', 1)">+</button>
+                                    </div>
+
+                                    <!-- CODE ĐANG CHẠY OK -->
+                                    <button class="btn btn-danger btn-sm w-100"
+                                            th:onclick="addToCart([[${f.id}]], [[${f.price}]], '[[${f.name}]]')">
+                                        Thêm vào giỏ
+                                    </button>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <!-- RIGHT SIDE -->
+        <div class="col-md-4 col-lg-3">
+
+            <!-- CART -->
+            <div class="card p-3 shadow-sm border-0 rounded-4">
+
+                <h5 class="text-success mb-3">🛒 Giỏ hàng</h5>
+
+                <div id="cartItems">
+                    <p class="text-muted text-center" id="emptyCartMsg">Chưa có món nào</p>
+                </div>
+
+                <hr>
+
+                <div class="d-flex justify-content-between">
+                    <span>Tổng:</span>
+                    <b><span id="total">0</span> đ</b>
+                </div>
+
+                <button class="btn btn-success w-100 mt-3"
+                        th:onclick="checkout([[${customer.id}]])">
+                    Thanh toán
+                </button>
+
+            </div>
+
+            <!-- ✅ THÊM BÀN TRỐNG (CHỈ HTML, KHÔNG JS) -->
+            <div class="card p-3 mt-4 shadow-sm border-0 rounded-4">
+
+                <h5 class="mb-3">🪑 Bàn trống</h5>
+
+                <div class="d-flex flex-wrap gap-2">
+
+                    <div class="border rounded-3 p-2 text-center bg-light"
+                         style="width: 70px;"
+                         th:each="t : ${tables}">
+
+                        <b class="text-primary" th:text="${t.tableNum}"></b><br>
+                        <small class="text-muted"
+                               th:text="${t.capacity} + ' chỗ'"></small>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <script>
+
+        let cart = [];
+
+        function formatMoney(amount) {
+            return amount.toLocaleString('vi-VN');
+        }
+
+        function updateInputQty(inputId, change) {
+            let input = document.getElementById(inputId);
+            let val = parseInt(input.value) || 1;
+            let newVal = val + change;
+            if (newVal >= 1) input.value = newVal;
+        }
+
+        function addToCart(id, price, name) {
+            let qty = parseInt(document.getElementById('qty-' + id).value) || 1;
+
+            let item = cart.find(i => i.id === id);
+
+            if (item) {
+                item.quantity += qty;
+            } else {
+                cart.push({ id, name, price, quantity: qty });
+            }
+
+            renderCart();
+        }
+
+        function removeFromCart(id) {
+            id = parseInt(id);
+            cart = cart.filter(i => i.id !== id);
+            renderCart();
+        }
+
+        function renderCart() {
+            let html = "";
+            let total = 0;
+
+            if (cart.length === 0) {
+                document.getElementById("cartItems").innerHTML =
+                    `<p class="text-muted text-center">Chưa có món nào</p>`;
+                document.getElementById("total").innerText = 0;
+                return;
+            }
+
+            cart.forEach(i => {
+                let itemTotal = i.price * i.quantity;
+                total += itemTotal;
+
+                html += `
+                <div class="d-flex align-items-center justify-content-between mb-2"
+                     style="font-size: 0.9rem;">
+
+                    <!-- Tên món -->
+                    <div style="width: 45%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                        ${i.name}
+                    </div>
+
+                    <!-- Số lượng -->
+                    <div style="width: 15%; text-align: center;">
+                        x${i.quantity}
+                    </div>
+
+                    <!-- Giá -->
+                    <div class="text-danger fw-bold" style="width: 30%; text-align: right;">
+                        ${formatMoney(itemTotal)} đ
+                    </div>
+
+                    <!-- Nút X -->
+                    <div style="width: 10%; text-align: right;">
+                        <button onclick="removeFromCart(${i.id})"
+                                style="
+                                    border: none;
+                                    background: #dc3545;
+                                    color: white;
+                                    width: 20px;
+                                    height: 20px;
+                                    border-radius: 4px;
+                                    font-size: 12px;
+                                    line-height: 18px;
+                                    padding: 0;
+                                    cursor: pointer;
+                                ">
+                            ✕
+                        </button>
+                    </div>
+
+                </div>
+                `;
+            });
+
+            document.getElementById("cartItems").innerHTML = html;
+            document.getElementById("total").innerText = formatMoney(total);
+        }
+
+        function checkout(customerId) {
+            if (cart.length === 0) {
+                alert("Chưa có món!");
+                return;
+            }
+
+            fetch("/customer/order/create/" + customerId, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(cart)
+            })
+            .then(res => {
+                if (res.ok) {
+                    alert("🎉 Thành công!");
+                    cart = [];
+                    renderCart();
+                }
+            });
+        }
+
+    </script>
+
+</div>
+
 </html>

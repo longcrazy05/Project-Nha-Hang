@@ -10,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 
 @Controller
-@RequestMapping("/foods")
+@RequestMapping("admin/foods")
 public class FoodController {
     private final FoodService foodService;
 
@@ -43,7 +43,7 @@ public class FoodController {
         }
 
         foodService.save(food);
-        return "redirect:/foods";
+        return "redirect:/admin/foods";
     }
 
 
@@ -57,7 +57,7 @@ public class FoodController {
     public String toggleAvailable(@PathVariable Long id){
         Food food = foodService.findById(id);
         foodService.updateAvailable(id, !food.isAvailable());
-        return "redirect:/foods";
+        return "redirect:/admin/foods";
     }
 
 }

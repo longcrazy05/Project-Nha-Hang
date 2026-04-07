@@ -1,12 +1,190 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-
 <head>
-    <title>Chi tiết Order</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-LN+7fdVzj6u52u30Kp6M/trliBMCMKTyK833zpbD+pXdCLuTusPj697FH4R/5mcr" crossorigin="anonymous">
+    <title>Order Detail</title>
 
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+          rel="stylesheet">
+
+    <style>
+        body {
+            background: #f5f7fa;
+        }
+        .card {
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+        }
+        .table th {
+            background-color: #f1f3f5;
+        }
+        .badge {
+            font-size: 0.9rem;
+        }
+    </style>
 </head>
-<body class="container mt-4">
+
+<body class="container py-4">
+
+<h2 class="mb-4">🍽️ Chi tiết đơn mua</h2>
+
+<!-- ADD FOOD -->
+<div class="card p-4 mb-4"
+     th:if="${order.paidAt==null && order.totalAmount != null}">
+
+    <h5 class="mb-3">➕ Thêm món</h5>
+
+    <form th:action="@{/staff/order-items/add}" method="post" class="row g-3">
+        <input type="hidden" name="orderId" th:value="${orderId}">
+
+        <div class="col-md-6">
+            <select name="foodId" class="form-select">
+                <option th:each="f : ${foods}"
+                        th:value="${f.id}"
+                        th:text="${f.name + ' - ' + f.price}">
+                </option>
+            </select>
+        </div>
+
+        <div class="col-md-2">
+            <input type="number" name="quantity"
+                   class="form-control"
+                   value="1" min="1">
+        </div>
+
+        <div class="col-md-2">
+            <button class="btn btn-primary w-100">
+                ➕ Thêm
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- ORDER ITEMS -->
+<div class="card p-3 mb-4">
+    <table class="table table-hover align-middle">
+        <thead>
+        <tr>
+            <th>Món</th>
+            <th>Giá</th>
+            <th>Số lượng</th>
+            <th class="col-status">Trạng thái</th>
+            <th th:if="${order.paidAt==null && order.totalAmount != null}" class="col-action">Hành động</th>
+        </tr>
+        </thead>
+
+        <tbody>
+        <tr th:each="item : ${items}">
+
+            <td th:text="${item.food.name}"></td>
+            <td th:text="${item.food.price}"></td>
+            <td th:text="${item.quantity}"></td>
+
+            <!-- STATUS -->
+            <td>
+                <span class="badge bg-secondary"
+                      th:if="${item.cookingStartedAt == null && item.cookingFinishedAt == null && item.servedAt == null}">
+                    Chờ nấu
+                </span>
+
+                <span class="badge bg-warning text-dark"
+                      th:if="${item.cookingStartedAt != null && item.cookingFinishedAt == null}">
+                    Đang nấu
+                </span>
+
+                <span class="badge bg-info text-dark"
+                      th:if="${item.cookingFinishedAt != null && item.servedAt == null}">
+                    Nấu xong
+                </span>
+
+                <span class="badge bg-success"
+                      th:if="${item.servedAt != null}">
+                    Đã phục vụ
+                </span>
+            </td>
+
+            <!-- ACTION -->
+            <td th:if="${order.paidAt==null && order.totalAmount != null}">
+
+                <a th:if="${item.cookingStartedAt == null}"
+                   th:href="@{/staff/order-items/start/{id}(id=${item.id},orderId=${orderId})}"
+                   class="btn btn-warning btn-sm">
+                    ▶ Start
+                </a>
+
+                <a th:if="${item.cookingStartedAt != null && item.cookingFinishedAt == null}"
+                   th:href="@{/staff/order-items/finish/{id}(id=${item.id},orderId=${orderId})}"
+                   class="btn btn-info btn-sm">
+                    ✔ Finish
+                </a>
+
+                <a th:if="${item.cookingFinishedAt != null && item.servedAt == null}"
+                   th:href="@{/staff/order-items/serve/{id}(id=${item.id},orderId=${orderId})}"
+                   class="btn btn-success btn-sm">
+                    🍽 Serve
+                </a>
+
+                <a th:if="${item.cookingStartedAt == null}"
+                   th:href="@{/staff/order-items/delete/{id}(id=${item.id},orderId=${orderId})}"
+                   class="btn btn-danger btn-sm">
+                    🗑 Delete
+                </a>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+</div>
+
+<!-- TOTAL -->
+<div class="d-flex justify-content-between align-items-center">
+    <h4>
+        💰 Tổng tiền:
+        <span class="text-danger fw-bold" th:text="${total}"></span>
+    </h4>
+
+    <form th:action="@{/staff/orders/save}" th:object="${order}" method="post">
+        <input type="hidden" th:value="${selectedDate}" name="redirectDate">
+
+        <button type="submit"
+                class="btn btn-outline-secondary" name="action" value="back">
+            ⬅ Quay lại
+        </button>
+    </form>
+</div>
+<style>
+    table {
+        table-layout: fixed;
+        width: 100%;
+    }
+
+    th, td {
+        text-align: center;
+        vertical-align: middle;
+    }
+
+    .col-status {
+        width: 150px;
+        white-space: nowrap;
+    }
+
+    .col-action {
+        width: 180px;
+        white-space: nowrap;
+    }
+</style>
+<!-- WS -->
+<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+
+<script>
+    let socket = new WebSocket(`ws://${location.host}/ws`);
+    let stompClient = Stomp.over(socket);
+
+    stompClient.connect({}, function () {
+        stompClient.subscribe('/topic/waiting', function () {
+            location.reload();
+        });
+    });
+</script>
 
 </body>
 </html>

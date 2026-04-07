@@ -7,7 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
-@RequestMapping("/employees")
+@RequestMapping("admin/employees")
 public class EmployeeController {
     private final EmployeeService employeeService;
 
@@ -31,13 +31,25 @@ public class EmployeeController {
         return "admin/employee/form";
     }
     @PostMapping("/save")
-    public String saveEmp(@ModelAttribute Employee emp){
+    public String saveEmp(@ModelAttribute Employee emp, Model model){
+        String isDuplicate;
+        if(emp.getId() == null){
+            isDuplicate = employeeService.isDuplicateForCreate(emp);
+        }
+        else {
+            isDuplicate = employeeService.isDuplicateForUpdate(emp);
+        }
+        if (!isDuplicate.equals("none")) {
+            model.addAttribute("emp", emp);
+            model.addAttribute("error", isDuplicate+" đã tồn tại!");
+            return "admin/employee/form";
+        }
         employeeService.saveEmployee(emp);
-        return "redirect:/employees";
+        return "redirect:/admin/employees";
     }
     @PostMapping("/delete/{id}")
     public String deleteEmp(@PathVariable Long id){
         employeeService.delete(id);
-        return "redirect:/employees";
+        return "redirect:/admin/employees";
     }
 }

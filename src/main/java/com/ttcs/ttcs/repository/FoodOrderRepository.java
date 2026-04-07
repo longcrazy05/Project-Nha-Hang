@@ -45,13 +45,13 @@ public interface FoodOrderRepository extends JpaRepository<FoodOrder, Long> {
 
     // doanh thu cac thang trong nam
     @Query("""
-        SELECT MONTH(f.paidAt), SUM(f.totalAmount)
+        SELECT MONTH(f.paidAt), COALESCE(SUM(f.totalAmount),0), COUNT(f)
         FROM FoodOrder f
         WHERE YEAR(f.paidAt) = :year
         GROUP BY MONTH(f.paidAt)
         ORDER BY MONTH(f.paidAt)
     """)
-    List<Object[]> getRevenueByMonth(@Param("year") int year);
+    List<Object[]> getRevenueAndOrderByMonth(@Param("year") int year);
 
     // ds don hang trong ngay
     @Query("""
@@ -59,4 +59,37 @@ public interface FoodOrderRepository extends JpaRepository<FoodOrder, Long> {
             where date(f.openedAt) = :date
             """)
     List<FoodOrder> findByDate(LocalDate date);
+
+    // tong so don trong nam
+    @Query("SELECT COUNT(f) FROM FoodOrder f WHERE YEAR(f.paidAt) = :year")
+    Long countOrdersByYear(int year);
+    // doanh thu năm
+    @Query("SELECT coalesce(sum(f.totalAmount), 0) FROM FoodOrder f WHERE YEAR(f.paidAt) = :year")
+    Long getYearRevenue(int year);
+
+    // ds order theo khach hang
+//    @Query("""
+//            select * from FoodOrder f
+//            where f.customerId = :id
+//            """)
+    List<FoodOrder> findByCustomerId(Long id);
+    List<FoodOrder> findByCustomerIdOrderByOpenedAtDesc(Long id);
+    @Query("""
+        SELECT COALESCE(SUM(o.totalAmount),0)
+        FROM FoodOrder o
+        WHERE o.customer.id = :id
+        """)
+    Long totalSpent(Long id);
+    //
+    @Query(value = """
+        SELECT 
+        DAYNAME(o.paid_at),
+        COALESCE(SUM(o.total_amount),0)
+        FROM food_order o
+        WHERE o.customer_id = :id
+        AND o.paid_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
+        GROUP BY DAYNAME(o.paid_at)
+        ORDER BY MIN(o.paid_at)
+        """, nativeQuery = true)
+    List<Object[]> weekStats(Long id);
 }

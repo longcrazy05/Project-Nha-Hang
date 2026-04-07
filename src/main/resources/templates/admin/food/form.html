@@ -4,72 +4,132 @@
 
 <div th:fragment="content">
 
-  <div class="card" style="margin-top: 70px">
-    <div class="card-header">
-      <h4 th:text="${food.id} == null ? 'Add Food' : 'Edit Food'"></h4>
-    </div>
-    <div class="card-body">
+  <div class="card p-4">
 
-      <form th:action="@{/foods/save}" th:object="${food}" method="post" enctype="multipart/form-data">
+    <!-- Title -->
+    <h4 class="mb-4 fw-bold"
+        th:text="${food.id} == null ? '➕ Add Food' : '✏️ Edit Food'">
+    </h4>
 
-        <input type="hidden" th:field="*{id}"/>
-        <input type="hidden" th:field="*{image_url}">
-        <div class="mb-3">
-          <label class="form-label">Name</label>
-          <input class="form-control" type="text" th:field="*{name}" required>
-        </div>
-        <div class="mb-3" th:if="${food.image_url != null}">
-          <label class="form-label">Current Image</label><br>
-          <img th:src="@{'/images/' + ${food.image_url}}"
-               style="width:120px; height:120px; object-fit:cover;">
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Upload Image</label>
-          <input class="form-control" type="file" name="image">
-        </div>
-<!--        <div class="mb-3">-->
-<!--          <label class="form-label">Image file name</label>-->
-<!--          <input class="form-control"-->
-<!--                 type="text"-->
-<!--                 th:field="*{image_url}"-->
-<!--                 placeholder="vd: pho_bo.jpg">-->
-<!--        </div>-->
+    <form th:action="@{/admin/foods/save}"
+          th:object="${food}"
+          method="post"
+          enctype="multipart/form-data">
 
-        <div class="mb-3">
-          <label class="form-label">Price</label>
-          <input class="form-control" type="number"
-                 th:field="*{price}" required>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Category</label>
-          <input class="form-control" type="text"
-                 th:field="*{category}" required>
-        </div>
-        <div class="mb-3">
-          <label class="form-label">Description</label>
-          <input class="form-control" type="text"
-                 th:field="*{description}" required>
-        </div>
-        <div class="form-check mb-3">
-          <input class="form-check-input"
-                 type="checkbox"
-                 th:field="*{available}">
-          <label class="form-check-label">
-            Available
-          </label>
+      <input type="hidden" th:field="*{id}"/>
+      <input type="hidden" th:field="*{image_url}"/>
+
+      <div class="row g-4">
+
+        <!-- LEFT -->
+        <div class="col-md-6">
+
+          <div class="mb-3">
+            <label class="form-label">Name</label>
+            <input class="form-control"
+                   type="text"
+                   th:field="*{name}" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Price</label>
+            <input class="form-control"
+                   type="number"
+                   th:field="*{price}" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Category</label>
+            <input class="form-control"
+                   type="text"
+                   th:field="*{category}" required>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control"
+                      rows="1"
+                      th:field="*{description}"></textarea>
+          </div>
+
         </div>
 
-        <button class="btn btn-success" type="submit">
-          Save
+        <!-- RIGHT -->
+        <div class="col-md-6">
+
+          <div class="mb-3 text-center">
+
+            <label class="form-label d-block">Current Image</label>
+
+            <img th:if="${food.image_url != null}"
+                 th:src="@{'/images/' + ${food.image_url}}"
+                 class="preview-img mb-3">
+
+            <div th:if="${food.image_url == null}"
+                 class="no-image mb-3">
+              No Image
+            </div>
+
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Upload Image</label>
+            <input class="form-control" type="file" name="image">
+          </div>
+
+          <div class="form-check form-switch mt-4">
+            <input class="form-check-input"
+                   type="checkbox"
+                   th:field="*{available}">
+            <label class="form-check-label">
+              Available
+            </label>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ACTIONS -->
+      <div class="mt-4">
+
+        <button class="btn btn-success px-4" type="submit">
+          💾 Save
         </button>
-        <a class="btn btn-secondary" th:href="@{/foods}">
+
+        <a class="btn btn-secondary ms-2"
+           th:href="@{/admin/foods}">
           Cancel
         </a>
 
-      </form>
+      </div>
 
-    </div>
+    </form>
+
   </div>
+
+  <!-- CSS -->
+  <style>
+    .preview-img {
+        width: 140px;
+        height: 140px;
+        object-fit: cover;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .no-image {
+        width: 140px;
+        height: 140px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border: 2px dashed #ccc;
+        border-radius: 12px;
+        color: #888;
+        font-size: 14px;
+    }
+  </style>
 
 </div>
 </html>

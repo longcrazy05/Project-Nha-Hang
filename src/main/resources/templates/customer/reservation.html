@@ -1,10 +1,187 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/customer :: layout(~{::content}, 'Reservation')">
 
-</body>
+<div th:fragment="content">
+
+    <div class="card shadow-sm p-4">
+
+        <div class="d-flex justify-content-between mb-3">
+            <div>
+                <h4>Đặt bàn</h4>
+                <small class="text-muted">
+                    Nhân viên sẽ phân bàn phù hợp
+                </small>
+            </div>
+
+            <div>
+                <button class="btn btn-primary" onclick="showForm()">
+                    + Đặt bàn
+                </button>
+            </div>
+        </div>
+
+
+        <!-- FORM -->
+        <div id="reservationForm"
+             class="card p-3 mb-4"
+             style="display:none;background:#f8f9fa">
+
+            <h5 class="mb-3">Thông tin đặt bàn</h5>
+
+            <form th:action="@{/customer/reservation/save}" method="post">
+
+                <input type="hidden"
+                       name="customerId"
+                       th:value="${customer.id}">
+
+                <!-- Guest -->
+                <div class="mb-3">
+                    <label class="form-label">Số khách</label>
+
+                    <input type="number"
+                           name="guestCount"
+                           class="form-control"
+                           min="1"
+                           placeholder="Nhập số khách"
+                           required>
+                </div>
+
+
+                <!-- TIME -->
+                <div class="mb-3">
+                    <label class="form-label">Thời gian đặt</label>
+
+                    <input type="datetime-local"
+                           id="reservationTime"
+                           name="time"
+                           class="form-control"
+                           required>
+
+                    <small id="timeError"
+                           class="text-danger"
+                           style="display:none">
+                        Không thể đặt giờ đã qua
+                    </small>
+                </div>
+
+
+                <button class="btn btn-success">
+                    Xác nhận
+                </button>
+
+                <button type="button"
+                        class="btn btn-secondary"
+                        onclick="hideForm()">
+                    Hủy
+                </button>
+
+            </form>
+
+        </div>
+
+
+
+        <!-- HISTORY -->
+        <div>
+
+            <h5 class="mb-3">Lịch sử đặt bàn</h5>
+
+            <table class="table table-hover align-middle">
+
+                <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Số khách</th>
+                    <th>Thời gian</th>
+                    <th>Trạng thái</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+
+                <tbody>
+
+                <tr th:each="r : ${reservations}">
+
+                    <td th:text="${r.id}"></td>
+
+                    <td th:text="${r.guestCount}"></td>
+
+                    <td th:text="${#temporals.format(r.reservationTime,'dd/MM/yyyy HH:mm')}"></td>
+
+
+                    <td>
+
+<span class="badge bg-primary"
+      th:if="${r.status == 'BOOKED'}">BOOKED</span>
+<span class="badge bg-warning"
+       th:if="${r.status == 'IN_USE'}">IN USE</span>
+
+<span class="badge bg-success"
+       th:if="${r.status == 'DONE'}">DONE</span>
+
+<span class="badge bg-danger"
+      th:if="${r.status == 'CANCELLED'}">CANCELLED</span>
+
+                    </td>
+                    <td>
+
+                        <!-- Cancel button -->
+                        <a th:if="${r.status == 'BOOKED'}"
+                           th:href="@{/customer/reservation/cancel/{id}(id=${r.id})}"
+                           class="btn btn-sm btn-danger">
+                            Hủy
+                        </a>
+
+                    </td>
+
+                </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+    </div>
+    <script>
+
+        function showForm(){
+        document.getElementById("reservationForm").style.display="block"
+        }
+
+        function hideForm(){
+        document.getElementById("reservationForm").style.display="none"
+        }
+        function setMinTime(){
+
+        let now = new Date();
+
+        now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+
+        document.getElementById("reservationTime")
+        .min = now.toISOString().slice(0,16);
+
+        }
+
+        setMinTime();
+
+        document.querySelector("form").addEventListener("submit", function(e){
+
+        let input = document.getElementById("reservationTime").value;
+        let selected = new Date(input);
+        let now = new Date();
+
+        if(selected < now){
+        e.preventDefault();
+        document.getElementById("timeError").style.display="block";
+        }else{
+        document.getElementById("timeError").style.display="none";
+        }
+
+        });
+    </script>
+</div>
+
+
 </html>

@@ -1,10 +1,81 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org"
+      th:fragment="layout(content,title)">
+
 <head>
   <meta charset="UTF-8">
-  <title>$Title$</title>
+  <title th:text="${title}"></title>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      background: #f8f9fa; /* Màu nền xám trắng sáng và dịu mắt hơn */
+      font-family: 'Inter', sans-serif; /* Font chữ hiện đại */
+    }
+
+    /* Tùy chỉnh thanh điều hướng */
+    .navbar-custom {
+      background: linear-gradient(135deg, #0d6efd, #0b5ed7); /* Hiệu ứng chuyển màu nhẹ cho Navbar */
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08); /* Đổ bóng để tách biệt navbar với nội dung */
+    }
+
+    .navbar-brand {
+      font-weight: 600;
+      font-size: 1.5rem;
+      letter-spacing: 0.5px;
+    }
+
+    /* Tùy chỉnh Food Card */
+    .food-card {
+      transition: all 0.3s ease-in-out;
+      border: none;
+      border-radius: 12px; /* Bo góc card */
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06); /* Đổ bóng nhẹ mặc định */
+      background: #ffffff;
+    }
+
+    .food-card:hover {
+      transform: translateY(-5px); /* Hiệu ứng nhấc thẻ lên nhẹ nhàng thay vì phóng to quá đà */
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15); /* Tăng đổ bóng khi trỏ chuột */
+    }
+
+  </style>
+
 </head>
+
 <body>
-$END$
+
+<nav class="navbar navbar-expand-lg navbar-dark navbar-custom sticky-top py-3">
+  <div class="container">
+
+    <a class="navbar-brand" href="/">
+      🍽 Restaurant
+    </a>
+
+    <div class="d-flex align-items-center">
+
+      <a href="/login"
+         class="btn btn-outline-light me-3 px-4 fw-medium rounded-pill">
+        Đăng nhập
+      </a>
+
+      <a href="/register"
+         class="btn btn-light px-4 fw-semibold text-primary rounded-pill shadow-sm">
+        Đăng ký
+      </a>
+
+    </div>
+  </div>
+</nav>
+
+<div class="container mt-5 mb-5">
+  <div th:replace="${content}"></div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 </body>
 </html>

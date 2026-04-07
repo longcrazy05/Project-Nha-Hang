@@ -1,10 +1,130 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>$Title$</title>
-</head>
-<body>
-$END$
-</body>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/customer :: layout(~{::content}, 'Profile')">
+
+<div th:fragment="content">
+
+  <style>
+    .profile-card {
+        border: none;
+        border-radius: 15px;
+        transition: box-shadow 0.3s ease;
+    }
+    .profile-card:hover {
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+    }
+    .form-control {
+        border-radius: 8px;
+        padding: 10px 15px;
+    }
+    .form-control:focus {
+        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+    }
+    .btn-toggle-pass {
+        border-radius: 0 8px 8px 0 !important;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 45px;
+    }
+    .btn-save {
+        border-radius: 8px;
+        padding: 10px 25px;
+        font-weight: 500;
+    }
+  </style>
+
+  <div class="card shadow-sm p-4 profile-card">
+
+    <h4 class="mb-1 fw-bold">Hồ Sơ Của Tôi</h4>
+    <p class="text-muted mb-4">Quản lý thông tin cá nhân của bạn</p>
+
+    <form th:action="@{/customer/profile/update}" th:object="${customer}" method="post">
+
+      <input type="hidden" name="id" th:value="${customer.id}">
+
+      <div class="row">
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label fw-semibold">Username</label>
+          <input type="text"
+                 name="username"
+                 class="form-control bg-light"
+                 th:value="${customer.username}"
+                 readonly>
+          <small class="text-muted">
+            * Username không thể thay đổi
+          </small>
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label fw-semibold">Name</label>
+          <input type="text"
+                 class="form-control"
+                 name="name"
+                 th:value="${customer.name}">
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label fw-semibold">Email</label>
+          <input type="email"
+                 class="form-control"
+                 name="email"
+                 th:value="${customer.email}">
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label fw-semibold">Phone</label>
+          <input type="text"
+                 class="form-control"
+                 name="phone"
+                 th:value="${customer.phone}">
+        </div>
+
+        <div class="col-md-6 mb-3">
+          <label class="form-label fw-semibold">Password</label>
+
+          <div class="input-group">
+            <input type="password"
+                   class="form-control border-end-0"
+                   name="password"
+                   id="password"
+                   th:value="${customer.password}">
+
+            <button class="btn btn-outline-secondary btn-toggle-pass"
+                    type="button"
+                    onclick="togglePassword()">
+              <span id="toggleIcon">👁️</span>
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
+      <button type="submit" class="btn btn-primary mt-3 btn-save">
+        💾 Lưu thay đổi
+      </button>
+
+    </form>
+
+  </div>
+
+  <script>
+    function togglePassword() {
+        let passInput = document.getElementById("password");
+        let icon = document.getElementById("toggleIcon");
+
+        if (passInput.type === "password") {
+            passInput.type = "text";
+            icon.textContent = "🙈"; // Đổi thành icon nhắm mắt khi hiện pass
+        } else {
+            passInput.type = "password";
+            icon.textContent = "👁️"; // Đổi lại icon mở mắt khi ẩn pass
+        }
+    }
+  </script>
+
+</div>
+
 </html>

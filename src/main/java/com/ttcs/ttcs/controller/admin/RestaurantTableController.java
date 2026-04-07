@@ -7,7 +7,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
-@RequestMapping("/tables")
+@RequestMapping("admin/tables")
 public class RestaurantTableController {
     public final RestaurantTableService tableService;
 
@@ -33,12 +33,12 @@ public class RestaurantTableController {
     @PostMapping("/save")
     public String saveTable(@ModelAttribute RestaurantTable table){
         tableService.saveTable(table);
-        return "redirect:/tables";
+        return "redirect:/admin/tables";
     }
     @GetMapping("toggle/{id}")
     public String toggleAvailable(@PathVariable Long id){
         RestaurantTable table = tableService.findById(id);
         tableService.updateAvailable(id, !table.isAvailable());
-        return "redirect:/tables";
+        return "redirect:/admin/tables";
     }
 }

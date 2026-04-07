@@ -5,8 +5,8 @@ import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "order_item",
-    uniqueConstraints = @UniqueConstraint(columnNames = {"order_id", "food_id"}))
+@Table(name = "order_item")
+//    uniqueConstraints = @UniqueConstraint(columnNames = {"order_id", "food_id"}))
 public class OrderItem {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
