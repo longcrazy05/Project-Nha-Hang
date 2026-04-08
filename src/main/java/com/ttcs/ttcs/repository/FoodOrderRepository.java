@@ -82,14 +82,47 @@ public interface FoodOrderRepository extends JpaRepository<FoodOrder, Long> {
     Long totalSpent(Long id);
     //
     @Query(value = """
-        SELECT 
-        DAYNAME(o.paid_at),
-        COALESCE(SUM(o.total_amount),0)
-        FROM food_order o
-        WHERE o.customer_id = :id
+    SELECT 
+        d.day_name,
+        COALESCE(SUM(o.total_amount), 0) AS total
+    FROM (
+        SELECT 'Monday' AS day_name UNION
+        SELECT 'Tuesday' UNION
+        SELECT 'Wednesday' UNION
+        SELECT 'Thursday' UNION
+        SELECT 'Friday' UNION
+        SELECT 'Saturday' UNION
+        SELECT 'Sunday'
+    ) d
+    LEFT JOIN food_order o 
+        ON DAYNAME(o.paid_at) = d.day_name
+        AND o.customer_id = :id
         AND o.paid_at >= DATE_SUB(CURDATE(), INTERVAL 7 DAY)
-        GROUP BY DAYNAME(o.paid_at)
-        ORDER BY MIN(o.paid_at)
-        """, nativeQuery = true)
-    List<Object[]> weekStats(Long id);
+    GROUP BY d.day_name
+    ORDER BY FIELD(
+        d.day_name,
+        'Monday','Tuesday','Wednesday',
+        'Thursday','Friday','Saturday','Sunday'
+    )
+""", nativeQuery = true)
+    List<Object[]> weekStats(@Param("id") Long id);
+
+    @Query(value = """
+    SELECT 
+        m.month,
+        COALESCE(SUM(o.total_amount), 0) AS total
+    FROM (
+        SELECT 1 AS month UNION SELECT 2 UNION SELECT 3 UNION
+        SELECT 4 UNION SELECT 5 UNION SELECT 6 UNION
+        SELECT 7 UNION SELECT 8 UNION SELECT 9 UNION
+        SELECT 10 UNION SELECT 11 UNION SELECT 12
+    ) m
+    LEFT JOIN food_order o
+        ON MONTH(o.paid_at) = m.month
+        AND YEAR(o.paid_at) = YEAR(CURDATE())
+        AND o.customer_id = :id
+    GROUP BY m.month
+    ORDER BY m.month
+""", nativeQuery = true)
+    List<Object[]> monthStats(@Param("id") Long id);
 }

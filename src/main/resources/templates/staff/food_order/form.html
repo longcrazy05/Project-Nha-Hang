@@ -7,10 +7,7 @@
         rel="stylesheet">
 
   <style>
-    body {
-        background: #f5f7fb;
-    }
-
+    body { background: #f5f7fb; }
     .card {
         border-radius: 12px;
         border: none;
@@ -23,7 +20,6 @@
 
 <div class="card p-4">
 
-  <!-- TITLE -->
   <h4 class="fw-bold mb-4"
       th:text="${order.id == null} ? '➕ Tạo Order' : '✏️ Chỉnh sửa Order'">
   </h4>
@@ -43,8 +39,10 @@
       <!-- LEFT -->
       <div class="col-md-6">
 
-        <!-- RESERVATION -->
-        <div class="mb-3">
+        <!-- RESERVATION (CHỈ KHI TẠO + KHÔNG ONLINE) -->
+        <div class="mb-3"
+             th:if="${order.id == null and order.orderType != 'ONLINE'}">
+
           <label class="form-label fw-semibold">Reservation</label>
 
           <select class="form-control"
@@ -55,7 +53,7 @@
 
             <option th:each="r : ${todayReservations}"
                     th:value="${r.id}"
-                    th:text="${r.customer.name + ' - ' + r.customer.phone}"
+                    th:text="${r.customer.name + ' - ' + r.customer.phone + ' - ' + r.guestCount + ' người'}"
                     th:attr="data-customer-id=${r.customer.id}">
             </option>
 
@@ -69,30 +67,37 @@
 
           <div class="form-control bg-light">
 
-                        <span th:if="${order.reservation != null
-                                      && order.reservation.table != null}">
-                            🍽 Bàn số
-                            <b th:text="${order.reservation.table.tableNum}"></b>
-                        </span>
+            <!-- ONLINE -->
+            <span th:if="${order.orderType == 'ONLINE'}">
+                🌐 ONLINE
+            </span>
 
-            <span th:if="${order.reservation == null
-                                      || order.reservation.table == null}">
-                            🥡 Mang đi
-                        </span>
+            <!-- NGỒI BÀN -->
+            <span th:if="${order.orderType != 'ONLINE'
+                          and order.reservation != null
+                          and order.reservation.table != null}">
+                🍽 Bàn số
+                <b th:text="${order.reservation.table.tableNum}"></b>
+            </span>
+
+            <!-- MANG ĐI -->
+            <span th:if="${order.orderType != 'ONLINE'
+                          and (order.reservation == null
+                          or order.reservation.table == null)}">
+                🥡 Mang đi
+            </span>
 
           </div>
 
         </div>
 
-        <!-- CHỌN BÀN -->
+        <!-- CHỌN BÀN (CHỈ KHI TẠO + KHÔNG ONLINE) -->
         <div class="mb-3"
-             th:if="${order.id == null
-                             || order.reservation == null
-                             || order.reservation.table == null}">
+             th:if="${order.id == null and order.orderType != 'ONLINE'}">
 
           <label class="form-label fw-semibold">Chọn bàn</label>
 
-          <select class="form-control" name="tableId" required>
+          <select class="form-control" name="tableId">
             <option value="0">Mang đi</option>
 
             <option th:each="t : ${tables}"
@@ -125,26 +130,18 @@
         <!-- CUSTOMER -->
         <div class="mb-3">
           <label class="form-label fw-semibold">Customer ID</label>
+
           <input type="number"
                  class="form-control"
+                 th:classappend="${customerError} ? 'is-invalid' : ''"
                  th:field="*{customer.id}"
                  id="customerIdInput"
-                 readonly>
-        </div>
+                 th:readonly="${order.id != null}">
 
-        <!-- EMPLOYEE -->
-        <div class="mb-3">
-          <label class="form-label fw-semibold">Nhân viên</label>
-
-          <select class="form-control"
-                  th:field="*{employee.id}">
-
-            <option th:each="e : ${employees}"
-                    th:value="${e.id}"
-                    th:text="${e.name} + ' - ID: ' + ${e.id}">
-            </option>
-
-          </select>
+          <div class="invalid-feedback"
+               th:if="${customerError}"
+               th:text="${customerError}">
+          </div>
         </div>
 
         <!-- TOTAL -->
@@ -166,13 +163,13 @@
     <!-- ACTION -->
     <div class="mt-4 d-flex gap-2 flex-wrap">
 
-      <button th:if="${order.openedAt != null}"
-              type="submit"
-              class="btn btn-primary"
-              name="action"
-              value="save">
-        💾 Lưu
-      </button>
+<!--      <button th:if="${order.openedAt != null}"-->
+<!--              type="submit"-->
+<!--              class="btn btn-primary"-->
+<!--              name="action"-->
+<!--              value="save">-->
+<!--        💾 Lưu-->
+<!--      </button>-->
 
       <button th:if="${order.openedAt == null}"
               type="submit"
@@ -203,23 +200,29 @@
 
 </div>
 
-<!-- AUTO FILL SCRIPT -->
+<!-- SCRIPT -->
 <script>
   const reservationSelect = document.getElementById('reservationSelect');
   const customerInput = document.getElementById('customerIdInput');
 
-  reservationSelect.addEventListener('change', function () {
+  function updateCustomerFromReservation() {
+      if (!reservationSelect) return;
 
-      const selectedOption = this.options[this.selectedIndex];
+      const selectedOption = reservationSelect.options[reservationSelect.selectedIndex];
       const customerId = selectedOption.getAttribute('data-customer-id');
 
       if (customerId) {
           customerInput.value = customerId;
+          customerInput.readOnly = true;
       } else {
-          customerInput.value = '';
+          customerInput.readOnly = false;
       }
+  }
 
-  });
+  if (reservationSelect) {
+      reservationSelect.addEventListener('change', updateCustomerFromReservation);
+      updateCustomerFromReservation();
+  }
 </script>
 
 </body>

@@ -2,6 +2,7 @@ package com.ttcs.ttcs.controller.admin;
 
 import com.ttcs.ttcs.enity.Employee;
 import com.ttcs.ttcs.service.EmployeeService;
+import com.ttcs.ttcs.service.SocketService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -10,9 +11,11 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("admin/employees")
 public class EmployeeController {
     private final EmployeeService employeeService;
-
-    public EmployeeController(EmployeeService employeeService) {
+    private final SocketService socketService;
+    public EmployeeController(EmployeeService employeeService,
+                              SocketService socketService) {
         this.employeeService = employeeService;
+        this.socketService = socketService;
     }
 
     @GetMapping
@@ -45,11 +48,13 @@ public class EmployeeController {
             return "admin/employee/form";
         }
         employeeService.saveEmployee(emp);
+        socketService.notifyEmployeeChanged();
         return "redirect:/admin/employees";
     }
     @PostMapping("/delete/{id}")
     public String deleteEmp(@PathVariable Long id){
         employeeService.delete(id);
+        socketService.notifyEmployeeChanged();
         return "redirect:/admin/employees";
     }
 }

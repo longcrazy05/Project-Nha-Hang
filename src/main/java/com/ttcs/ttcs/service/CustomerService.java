@@ -9,7 +9,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class CustomerService {
@@ -71,31 +73,44 @@ public class CustomerService {
         return foodOrderService.totalSpent(id);
     }
     //
-    public List<Long> weekValues(Long customerId){
+    public List<String> weekLabels(Long customerId){
+        List<String> days = List.of(
+                "Monday","Tuesday","Wednesday","Thursday",
+                "Friday","Saturday","Sunday"
+        );
 
-        List<Object[]> raw =
-                foodOrderService.weekStats(customerId);
+        Map<String, Long> map = new HashMap<>();
 
-        List<Long> values = new ArrayList<>();
-
-        for(Object[] r : raw){
-            values.add(((Number) r[1]).longValue());
+        for(Object[] r : foodOrderService.weekStats(customerId)){
+            map.put((String) r[0], ((Number) r[1]).longValue());
         }
 
-        return values;
-    }
-    public List<String> weekLabels(Long customerId){
-
-        List<Object[]> raw =
-                foodOrderService.weekStats(customerId);
-
         List<String> labels = new ArrayList<>();
-
-        for(Object[] r : raw){
-            labels.add((String) r[0]);
+        for(String d : days){
+            labels.add(d);
         }
 
         return labels;
+    }
+
+    public List<Long> weekValues(Long customerId){
+        List<String> days = List.of(
+                "Monday","Tuesday","Wednesday","Thursday",
+                "Friday","Saturday","Sunday"
+        );
+
+        Map<String, Long> map = new HashMap<>();
+
+        for(Object[] r : foodOrderService.weekStats(customerId)){
+            map.put((String) r[0], ((Number) r[1]).longValue());
+        }
+
+        List<Long> values = new ArrayList<>();
+        for(String d : days){
+            values.add(map.getOrDefault(d, 0L));
+        }
+
+        return values;
     }
 
     public Customer login(String username,String password){
@@ -109,12 +124,10 @@ public class CustomerService {
         return customerRepository.existsByUsername(username)
                 || employeeRepository.existsByUsername(username);
     }
-
     public boolean existsEmail(String email){
         return customerRepository.existsByEmail(email)
                 || employeeRepository.existsByEmail(email);
     }
-
     public boolean existsPhone(String phone){
         return customerRepository.existsByPhone(phone)
                 || employeeRepository.existsByPhone(phone);
@@ -122,7 +135,6 @@ public class CustomerService {
 
     @Transactional
     public void createFromCart(Long customerId, List<CartItem> cart){
-
         Customer customer = customerRepository
                 .findById(customerId)
                 .orElseThrow();
@@ -131,32 +143,46 @@ public class CustomerService {
         FoodOrder order = new FoodOrder();
         order.setCustomer(customer);
         order.setOpenedAt(LocalDateTime.now());
+        order.setPaidAt(LocalDateTime.now());
         order.setOrderType("ONLINE");
+        order.setPaymentMethod("CARD");
         order.setTotalAmount(0L);
 
         foodOrderService.save(order);
-
         long total = 0;
 
         for(CartItem c : cart){
-
             Food food = foodService.findById(c.getId());
-
             OrderItem item = new OrderItem();
-
             item.setFoodOrder(order); // đúng field của bạn
             item.setFood(food);
             item.setQuantity(c.getQuantity());
-
             item.setOrderedAt(LocalDateTime.now()); // thêm thời gian
-
             orderItemService.save(item);
-
             total += food.getPrice() * c.getQuantity(); // lấy từ food
         }
-
         order.setTotalAmount(total);
-
         foodOrderService.save(order);
+    }
+    public List<Long> monthValues(Long customerId){
+        List<Object[]> raw = foodOrderService.monthStats(customerId);
+        List<Long> values = new ArrayList<>();
+
+        for(Object[] r : raw){
+            values.add(((Number) r[1]).longValue());
+        }
+
+        return values;
+    }
+
+    public List<String> monthLabels(Long customerId){
+        List<Object[]> raw = foodOrderService.monthStats(customerId);
+        List<String> labels = new ArrayList<>();
+
+        for(Object[] r : raw){
+            labels.add(("Tháng "+ r[0])); // dạng: 2026-04
+        }
+
+        return labels;
     }
 }

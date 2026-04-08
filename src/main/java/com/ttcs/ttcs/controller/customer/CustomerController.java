@@ -5,6 +5,7 @@ import com.ttcs.ttcs.enity.Customer;
 import com.ttcs.ttcs.enity.OrderItem;
 import com.ttcs.ttcs.enity.Reservation;
 import com.ttcs.ttcs.service.CustomerService;
+import com.ttcs.ttcs.service.SocketService;
 import com.ttcs.ttcs.service.ReservationService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,10 +20,14 @@ public class CustomerController {
 
     private final CustomerService customerService;
     private final ReservationService reservationService;
+    private final SocketService socketService;
+
     public CustomerController(CustomerService customerService,
-                              ReservationService reservationService) {
+                              ReservationService reservationService,
+                              SocketService socketService) {
         this.customerService = customerService;
         this.reservationService = reservationService;
+        this.socketService = socketService;
     }
 
     //home
@@ -104,25 +109,13 @@ public class CustomerController {
     @GetMapping("/orders/{id}")
     public String orders(@PathVariable Long id, Model model){
 
-        model.addAttribute(
-                "orders",
-                customerService.foodOrderList(id)
-        );
+        model.addAttribute("orders", customerService.foodOrderList(id));
 
-        model.addAttribute(
-                "totalSpent",
-                customerService.totalSpent(id)
-        );
-
-        model.addAttribute(
-                "weekLabels",
-                customerService.weekLabels(id)
-        );
-
-        model.addAttribute(
-                "weekValues",
-                customerService.weekValues(id)
-        );
+        model.addAttribute("totalSpent", customerService.totalSpent(id));
+        model.addAttribute("weekLabels", customerService.weekLabels(id));
+        model.addAttribute("weekValues", customerService.weekValues(id));
+        model.addAttribute("monthLabels", customerService.monthLabels(id));
+        model.addAttribute("monthValues", customerService.monthValues(id));
         model.addAttribute("customer", customerService.findById(id));
         return "customer/orders";
     }
@@ -134,11 +127,11 @@ public class CustomerController {
 
     @PostMapping("/order/create/{customerId}")
     @ResponseBody
-    public String createOrder(
+    public void createOrder(
             @PathVariable Long customerId,
             @RequestBody List<CartItem> cart
     ){
         customerService.createFromCart(customerId, cart);
-        return "ok";
+        socketService.notifyRevenueChanged();
     }
 }

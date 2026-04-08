@@ -19,7 +19,7 @@ public class FoodOrder {
 
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)
-    private Customer customer;
+    private Customer customer = new Customer();
 
     @OneToOne
     @JoinColumn(name = "reservation_id")

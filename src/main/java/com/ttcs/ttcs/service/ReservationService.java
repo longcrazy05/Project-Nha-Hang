@@ -36,6 +36,10 @@ public class ReservationService {
     public void save(Reservation r){
         reservationRepository.save(r);
     }
+    //delete
+    public void delete(Reservation reservation){
+        reservationRepository.delete(reservation);
+    }
     // ds theo khach hang
     public List<Reservation> CustomerReservationList(Long id){
         return reservationRepository.findByCustomerIdOrderByReservationTimeDesc(id);

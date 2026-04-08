@@ -4,10 +4,7 @@ import com.ttcs.ttcs.enity.Customer;
 import com.ttcs.ttcs.enity.FoodOrder;
 import com.ttcs.ttcs.enity.Reservation;
 import com.ttcs.ttcs.enity.RestaurantTable;
-import com.ttcs.ttcs.repository.CustomerRepository;
-import com.ttcs.ttcs.repository.FoodOrderRepository;
-import com.ttcs.ttcs.repository.ReservationRepository;
-import com.ttcs.ttcs.repository.RestaurantTableRepository;
+import com.ttcs.ttcs.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -22,16 +19,19 @@ public class FoodOrderService {
     private final FoodOrderRepository foodOrderRepository;
     private final ReservationRepository reservationRepository;
     private final RestaurantTableRepository tableRepository;
+    private final OrderItemRepository orderItemRepository;
     private final CustomerRepository customerRepository;
     private final SimpMessagingTemplate messagingTemplate;
     public FoodOrderService(FoodOrderRepository foodOrderRepository, ReservationRepository reservationRepository, RestaurantTableRepository tableRepository,
                             CustomerRepository customerRepository,
-                            SimpMessagingTemplate  messagingTemplate) {
+                            SimpMessagingTemplate  messagingTemplate,
+                            OrderItemRepository orderItemRepository) {
         this.foodOrderRepository = foodOrderRepository;
         this.reservationRepository = reservationRepository;
         this.tableRepository = tableRepository;
         this.customerRepository = customerRepository;
         this.messagingTemplate = messagingTemplate;
+        this.orderItemRepository = orderItemRepository;
     }
 
     public Long getTodayRevenue(){
@@ -72,6 +72,7 @@ public class FoodOrderService {
     }
     // delete
     public void delete(Long id){
+        orderItemRepository.deleteByOrderId(id);
         foodOrderRepository.deleteById(id);
     }
     // reservation ID
@@ -152,21 +153,19 @@ public class FoodOrderService {
     }
 
     @Transactional
-    public void markAsPaid(Long orderId){
+    public void markAsPaid(Long orderId, String paymentMethod){
 
         FoodOrder order = foodOrderRepository.findById(orderId).orElseThrow();
-
+        order.setPaymentMethod(paymentMethod);
         order.setPaidAt(LocalDateTime.now());
-
         Reservation reservation = order.getReservation();
 
         if (reservation != null && reservation.getTable() != null) {
 
             RestaurantTable table = reservation.getTable();
             table.setAvailable(true);
-
-            reservation.setStatus("DONE");
         }
+        if (reservation != null) reservation.setStatus("DONE");
         messagingTemplate.convertAndSend("/topic/dashboard", "update");
     }
     // ds order theo customer
@@ -179,5 +178,9 @@ public class FoodOrderService {
 
     public List<Object[]> weekStats(Long id){
         return foodOrderRepository.weekStats(id);
+    }
+
+    public List<Object[]> monthStats(Long id){
+        return foodOrderRepository.monthStats(id);
     }
 }

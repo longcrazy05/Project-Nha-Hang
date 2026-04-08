@@ -1,11 +1,13 @@
 <!DOCTYPE html>
+
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="layout/customer :: layout(~{::content}, 'Orders')">
 
 <div th:fragment="content">
 
+    ```
+    <!-- ===== SUMMARY + CHART ===== -->
     <div class="card shadow-sm p-4 mb-4">
-
         <div class="row">
 
             <div class="col-md-4">
@@ -25,16 +27,13 @@
             </div>
 
         </div>
-
     </div>
 
-
+    <!-- ===== ORDER LIST ===== -->
     <div class="card shadow-sm p-4">
-
         <h5 class="mb-3">Danh sách đơn hàng</h5>
 
         <table class="table table-hover align-middle">
-
             <thead class="table-light">
             <tr>
                 <th>ID</th>
@@ -46,52 +45,34 @@
             </thead>
 
             <tbody>
-
             <tr th:each="o : ${orders}">
-
                 <td th:text="${o.id}"></td>
-
                 <td th:text="${#temporals.format(o.openedAt,'dd/MM/yyyy HH:mm')}"></td>
-
                 <td th:text="${o.totalAmount} + ' VND'"></td>
-
                 <td th:text="${o.orderType}"></td>
-
                 <td>
                     <button class="btn btn-sm btn-primary"
                             th:attr="onclick='showDetail(' + ${o.id} + ')'">
                         Chi tiết
                     </button>
                 </td>
-
             </tr>
-
             </tbody>
-
         </table>
-
     </div>
 
-
-
-    <!-- ORDER DETAIL MODAL -->
-
+    <!-- ===== ORDER DETAIL MODAL ===== -->
     <div class="modal fade" id="orderModal">
-
         <div class="modal-dialog modal-lg">
-
             <div class="modal-content">
 
                 <div class="modal-header">
                     <h5>Chi tiết đơn hàng</h5>
-                    <button class="btn-close"
-                            data-bs-dismiss="modal"></button>
+                    <button class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
 
                 <div class="modal-body">
-
                     <table class="table">
-
                         <thead>
                         <tr>
                             <th>Món</th>
@@ -99,75 +80,75 @@
                             <th>Giá</th>
                         </tr>
                         </thead>
-
-                        <tbody id="orderDetailBody">
-                        </tbody>
-
+                        <tbody id="orderDetailBody"></tbody>
                     </table>
-
                 </div>
 
             </div>
-
         </div>
     </div>
 
+    <!-- ===== JS ===== -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <script th:inline="javascript">
 
-        const labels = [[${weekLabels}]];
-        const data = [[${weekValues}]];
+        // ===== CHART =====
+        const labels = /*[[${monthLabels}]]*/ [];
+        const data = /*[[${monthValues}]]*/ [];
 
-        new Chart(document.getElementById("orderChart"),{
-
-        type:"line",
-
-        data:{
-        labels:labels,
-        datasets:[{
-        label:"Chi tiêu",
-        data:data,
-        borderColor:"#0d6efd",
-        fill:false
-        }]
-        }
-
+        new Chart(document.getElementById("orderChart"), {
+            type: "line",
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Chi tiêu theo tháng",
+                    data: data,
+                    borderColor: "#0d6efd",
+                    fill: false
+                }]
+            }
         });
 
-        function showDetail(id){
+        // ===== SHOW DETAIL =====
+        function showDetail(id) {
 
-    fetch("/customer/orders/detail/" + id)
+            fetch("/customer/orders/detail/" + id)
+                .then(res => {
+                    if (!res.ok) throw new Error("API lỗi");
+                    return res.json();
+                })
+                .then(data => {
 
-    .then(res=>res.json())
+                    let html = "";
 
-    .then(data=>{
+                    data.forEach(i => {
+                        html += `
+                        <tr>
+                            <td>${i.food.name}</td>
+                            <td>${i.quantity}</td>
+                            <td>${i.food.price} VND</td>
+                        </tr>
+                        `;
+                    });
 
-    let html="";
+                    document.getElementById("orderDetailBody").innerHTML = html;
 
-    data.forEach(i=>{
-
-    html+=`
-    <tr>
-    <td>${i.food.name}</td>
-    <td>${i.quantity}</td>
-    <td>${i.food.price} VND</td>
-    </tr>
-    `
-
-    })
-
-    document.getElementById("orderDetailBody").innerHTML=html;
-
-    new bootstrap.Modal(
-    document.getElementById("orderModal")
-    ).show();
-
-    })
-
-    }
+                    const modal = bootstrap.Modal.getOrCreateInstance(
+                        document.getElementById('orderModal')
+                    );
+                    modal.show();
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Lỗi tải chi tiết đơn hàng!");
+                });
+        }
 
     </script>
+    ```
+
 </div>
 
 </html>

@@ -103,6 +103,21 @@
             box-shadow: 0 2px 6px rgba(0,0,0,0.15);
         }
     </style>
+    <!-- WebSocket auto reload -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
 
+    <script>
+        let socket = new WebSocket(`ws://${location.host}/ws`);
+        let stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function () {
+            stompClient.subscribe('/topic/food', function () {
+                location.reload();
+            });
+
+        });
+
+    </script>
 </div>
 </html>

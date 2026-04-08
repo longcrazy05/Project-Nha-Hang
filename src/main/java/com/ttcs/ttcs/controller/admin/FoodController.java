@@ -2,6 +2,7 @@ package com.ttcs.ttcs.controller.admin;
 
 import com.ttcs.ttcs.enity.Food;
 import com.ttcs.ttcs.service.FoodService;
+import com.ttcs.ttcs.service.SocketService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -13,9 +14,11 @@ import java.io.IOException;
 @RequestMapping("admin/foods")
 public class FoodController {
     private final FoodService foodService;
-
-    public FoodController(FoodService foodService) {
+    private final SocketService socketService;
+    public FoodController(FoodService foodService,
+                          SocketService socketService) {
         this.foodService = foodService;
+        this.socketService = socketService;
     }
 
     @GetMapping
@@ -43,6 +46,7 @@ public class FoodController {
         }
 
         foodService.save(food);
+        socketService.notifyFoodChanged();
         return "redirect:/admin/foods";
     }
 
@@ -57,6 +61,7 @@ public class FoodController {
     public String toggleAvailable(@PathVariable Long id){
         Food food = foodService.findById(id);
         foodService.updateAvailable(id, !food.isAvailable());
+        socketService.notifyFoodChanged();
         return "redirect:/admin/foods";
     }
 

@@ -1,6 +1,7 @@
 package com.ttcs.ttcs.controller.admin;
 
 import com.ttcs.ttcs.service.FoodOrderService;
+import com.ttcs.ttcs.service.RestaurantTableService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,9 +19,11 @@ import java.util.List;
 public class DashboardController {
 
     private final FoodOrderService foodOrderService;
+    private final RestaurantTableService tableService;
 
-    public DashboardController(FoodOrderService foodOrderService) {
+    public DashboardController(FoodOrderService foodOrderService, RestaurantTableService tableService) {
         this.foodOrderService = foodOrderService;
+        this.tableService = tableService;
     }
 
     @GetMapping()
@@ -59,6 +62,8 @@ public class DashboardController {
         model.addAttribute("orders", orders);
         model.addAttribute("selectedYear", year);
         model.addAttribute("today", LocalDate.now().format(f));
+        model.addAttribute("totalTables", tableService.totalTables());
+        model.addAttribute("usingTables", tableService.usingTables());
         // danh sách năm để chọn
         int yearNow = LocalDate.now().getYear();
         List<Integer> years = new ArrayList<>();

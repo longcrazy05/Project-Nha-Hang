@@ -40,4 +40,11 @@ public class RestaurantTableService {
     public List<RestaurantTable> availableTables(){
         return tableRepository.findByAvailableTrue();
     }
+    public Long totalTables(){
+        return tableRepository.totalTables();
+    }
+
+    public Long usingTables(){
+        return tableRepository.usingTables();
+    }
 }

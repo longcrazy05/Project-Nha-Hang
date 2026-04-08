@@ -3,9 +3,11 @@ package com.ttcs.ttcs.repository;
 import com.ttcs.ttcs.enity.FoodOrder;
 import com.ttcs.ttcs.enity.OrderItem;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -27,4 +29,8 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
             where date(o.orderedAt) = :date and o.servedAt is null
             """)
     List<OrderItem> findOrderItemByDate(LocalDate date);
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM OrderItem oi WHERE oi.foodOrder.id = :orderId")
+    void deleteByOrderId(@Param("orderId") Long orderId);
 }

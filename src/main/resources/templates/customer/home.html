@@ -14,7 +14,7 @@
 
                 <div class="row">
 
-                    <div class="col-lg-3 col-md-4 col-6 mb-4" th:each="f : ${foods}">
+                    <div class="col-lg-3 col-md-4 col-6 mb-4" th:each="f : ${foods}" th:if="${f.available == true}">
 
                         <div class="card h-100 shadow-sm d-flex flex-column">
 
@@ -236,6 +236,24 @@
 
     </script>
 
+    <!-- WebSocket auto reload -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
+
+    <script>
+        let socket = new WebSocket(`ws://${location.host}/ws`);
+        let stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, function () {
+            stompClient.subscribe('/topic/tables', function () {
+                location.reload();
+            });
+            stompClient.subscribe('/topic/food', function () {
+                location.reload();
+            });
+        });
+
+    </script>
 </div>
 
 </html>

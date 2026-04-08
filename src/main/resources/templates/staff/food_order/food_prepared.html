@@ -1,186 +1,197 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <title>Danh sách chờ</title>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="layout/staff :: layout(~{::content}, 'Danh sách chờ')">
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          rel="stylesheet">
+<div th:fragment="content">
 
-    <style>
-        body {
-            background: #f5f7fb;
-        }
+    <h3 class="fw-bold mb-4">🍳 Danh sách chờ</h3>
 
-        .card {
-            border-radius: 12px;
-            border: none;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-        }
+    <div class="card p-3">
 
-        .table th, .table td {
-            text-align: center;
-            vertical-align: middle;
-        }
+        <div class="table-responsive">
 
-        .status-badge {
-            padding: 6px 10px;
-            border-radius: 8px;
-            font-size: 13px;
-            font-weight: 500;
-        }
-    </style>
-</head>
+            <table class="table table-hover align-middle">
 
-<body class="container py-4">
+                <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Khách</th>
+                    <th>Bàn</th>
+                    <th>Món</th>
+                    <th>SL</th>
+                    <th>Trạng thái</th>
+                    <th>Hành động</th>
+                </tr>
+                </thead>
 
-<!-- HEADER -->
-<div class="d-flex justify-content-between align-items-center mb-4">
-    <h3 class="fw-bold">🍳 Danh sách chờ</h3>
+                <tbody>
 
-    <div>
-        <a href="/staff/orders" class="btn btn-outline-primary me-2">
-            📋 Order
-        </a>
-        <a href="/staff/reservation" class="btn btn-outline-success">
-            📅 Đặt trước
-        </a>
+                <tr th:each="wait : ${waits}"
+                    th:with="r=${wait.foodOrder.reservation}">
+
+                    <td th:text="${wait.id}"></td>
+
+                    <td class="fw-semibold"
+                        th:text="${wait.foodOrder.customer.name}">
+                    </td>
+
+                    <!-- TABLE -->
+                    <td>
+
+<span class="badge bg-info text-dark">
+
+<span th:if="${r == null}">
+ONLINE
+</span>
+
+<span th:if="${r != null}"
+      th:text="${r.table != null ? 'Bàn ' + r.table.tableNum : 'Mang đi'}">
+</span>
+
+</span>
+
+                    </td>
+
+                    <!-- FOOD -->
+                    <td th:text="${wait.food.name}"></td>
+
+                    <!-- QUANTITY -->
+                    <td>
+<span class="badge bg-secondary"
+      th:text="${wait.quantity}">
+</span>
+                    </td>
+
+
+                    <!-- STATUS -->
+                    <td>
+
+                        <!-- WAIT -->
+                        <span class="badge bg-secondary"
+                              th:if="${wait.cookingStartedAt == null
+&& wait.cookingFinishedAt == null
+&& wait.servedAt == null}">
+⏳ Chờ nấu
+</span>
+
+                        <!-- COOKING -->
+                        <span class="badge bg-warning text-dark"
+                              th:if="${wait.cookingStartedAt != null
+&& wait.cookingFinishedAt == null
+&& wait.servedAt == null}">
+🔥 Đang nấu
+</span>
+
+                        <!-- FINISHED -->
+                        <span class="badge bg-info text-dark"
+                              th:if="${wait.cookingStartedAt != null
+&& wait.cookingFinishedAt != null
+&& wait.servedAt == null}">
+🍽 Nấu xong
+</span>
+
+                        <!-- SERVED -->
+                        <span class="badge bg-success"
+                              th:if="${wait.servedAt != null}">
+✅ Đã phục vụ
+</span>
+
+                    </td>
+
+
+                    <!-- ACTION -->
+                    <td th:if="${wait.foodOrder.totalAmount != null}">
+
+                        <!-- START -->
+                        <a th:if="${wait.cookingStartedAt == null
+&& wait.cookingFinishedAt == null}"
+
+                           th:href="@{/staff/order-items/waiting/start/{id}(id=${wait.id})}"
+                           class="btn btn-sm btn-warning me-1">
+
+                            ▶ Start
+
+                        </a>
+
+
+                        <!-- FINISH -->
+                        <a th:if="${wait.cookingStartedAt != null
+&& wait.cookingFinishedAt == null}"
+
+                           th:href="@{/staff/order-items/waiting/finish/{id}(id=${wait.id})}"
+                           class="btn btn-sm btn-info me-1">
+
+                            ✔ Finish
+
+                        </a>
+
+
+                        <!-- SERVE -->
+                        <a th:if="${wait.cookingFinishedAt != null
+&& wait.servedAt == null}"
+
+                           th:href="@{/staff/order-items/waiting/serve/{id}(id=${wait.id})}"
+                           class="btn btn-sm btn-success me-1">
+
+                            🍽 Serve
+
+                        </a>
+
+
+                        <!-- DELETE -->
+                        <a th:if="${wait.cookingStartedAt == null}"
+
+                           th:href="@{/staff/order-items/waiting/delete/{id}(id=${wait.id})}"
+                           class="btn btn-sm btn-danger">
+
+                            🗑
+
+                        </a>
+
+                    </td>
+
+                </tr>
+
+
+                <tr th:if="${#lists.isEmpty(waits)}">
+
+                    <td colspan="7"
+                        class="text-center text-muted py-4">
+
+                        Không có món chờ
+
+                    </td>
+
+                </tr>
+
+                </tbody>
+
+            </table>
+
+        </div>
+
     </div>
-</div>
 
-<!-- TABLE -->
-<div class="card p-3">
 
-    <div class="table-responsive">
-        <table class="table table-hover align-middle">
+    <!-- REALTIME -->
+    <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
 
-            <thead class="table-light">
-            <tr>
-                <th>ID</th>
-                <th>Khách</th>
-                <th>Bàn</th>
-                <th>Món</th>
-                <th>SL</th>
-                <th>Trạng thái</th>
-                <th>Hành động</th>
-            </tr>
-            </thead>
+    <script>
 
-            <tbody>
-            <tr th:each="wait : ${waits}"
-                th:with="table=${wait.foodOrder.reservation.table}">
+        let socket = new WebSocket(`ws://${location.host}/ws`);
+        let stompClient = Stomp.over(socket);
 
-                <td th:text="${wait.id}"></td>
+        stompClient.connect({}, function () {
 
-                <td class="fw-semibold"
-                    th:text="${wait.foodOrder.customer.name}"></td>
-
-                <!-- TABLE -->
-                <td>
-                    <span class="badge bg-info text-dark">
-                        <span th:text="${table != null ? 'Bàn ' + table.tableNum : 'Mang đi'}"></span>
-                    </span>
-                </td>
-
-                <!-- FOOD -->
-                <td th:text="${wait.food.name}"></td>
-
-                <!-- QUANTITY -->
-                <td>
-                    <span class="badge bg-secondary"
-                          th:text="${wait.quantity}"></span>
-                </td>
-
-                <!-- STATUS -->
-                <td>
-
-                    <!-- Chờ -->
-                    <span class="badge bg-secondary"
-                          th:if="${wait.cookingStartedAt == null && wait.cookingFinishedAt == null && wait.servedAt == null}">
-                        ⏳ Chờ nấu
-                    </span>
-
-                    <!-- Đang nấu -->
-                    <span class="badge bg-warning text-dark"
-                          th:if="${wait.cookingStartedAt != null && wait.cookingFinishedAt == null && wait.servedAt == null}">
-                        🔥 Đang nấu
-                    </span>
-
-                    <!-- Nấu xong -->
-                    <span class="badge bg-info text-dark"
-                          th:if="${wait.cookingStartedAt != null && wait.cookingFinishedAt != null && wait.servedAt == null}">
-                        🍽 Nấu xong
-                    </span>
-
-                    <!-- Đã phục vụ -->
-                    <span class="badge bg-success"
-                          th:if="${wait.servedAt != null}">
-                        ✅ Đã phục vụ
-                    </span>
-
-                </td>
-
-                <!-- ACTION -->
-                <td th:if="${wait.foodOrder.paidAt == null && wait.foodOrder.totalAmount != null}">
-
-                    <!-- START -->
-                    <a th:if="${wait.cookingStartedAt == null && wait.cookingFinishedAt == null}"
-                       th:href="@{/staff/order-items/waiting/start/{id}(id=${wait.id})}"
-                       class="btn btn-sm btn-warning me-1">
-                        ▶ Start
-                    </a>
-
-                    <!-- FINISH -->
-                    <a th:if="${wait.cookingStartedAt != null && wait.cookingFinishedAt == null}"
-                       th:href="@{/staff/order-items/waiting/finish/{id}(id=${wait.id})}"
-                       class="btn btn-sm btn-info me-1">
-                        ✔ Finish
-                    </a>
-
-                    <!-- SERVE -->
-                    <a th:if="${wait.cookingFinishedAt != null && wait.servedAt == null}"
-                       th:href="@{/staff/order-items/waiting/serve/{id}(id=${wait.id})}"
-                       class="btn btn-sm btn-success me-1">
-                        🍽 Serve
-                    </a>
-
-                    <!-- DELETE -->
-                    <a th:if="${wait.cookingStartedAt == null}"
-                       th:href="@{/staff/order-items/waiting/delete/{id}(id=${wait.id})}"
-                       class="btn btn-sm btn-danger">
-                        🗑
-                    </a>
-
-                </td>
-
-            </tr>
-
-            <tr th:if="${#lists.isEmpty(waits)}">
-                <td colspan="7" class="text-center text-muted py-4">
-                    Không có món chờ
-                </td>
-            </tr>
-
-            </tbody>
-
-        </table>
-    </div>
-
-</div>
-
-<!-- REALTIME -->
-<script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
-
-<script>
-    let socket = new WebSocket(`ws://${location.host}/ws`);
-    let stompClient = Stomp.over(socket);
-
-    stompClient.connect({}, function () {
         stompClient.subscribe('/topic/waiting', function () {
-            location.reload();
+        location.reload();
         });
-    });
-</script>
 
-</body>
+        });
+
+    </script>
+
+</div>
+
 </html>
