@@ -1,118 +1,205 @@
 <!DOCTYPE html>
-
 <html xmlns:th="http://www.thymeleaf.org"
       th:replace="layout/customer :: layout(~{::content}, 'Orders')">
 
 <div th:fragment="content">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    ```
-    <!-- ===== SUMMARY + CHART ===== -->
-    <div class="card shadow-sm p-4 mb-4">
-        <div class="row">
+    <style>
+        .summary-card {
+            border: none;
+            border-radius: 20px;
+            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            height: 100%;
+        }
+        .data-card {
+            border: none;
+            border-radius: 20px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+            background: #fff;
+        }
+        .table thead th {
+            background-color: #f8f9fa;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+            color: #6c757d;
+            border: none;
+            padding: 15px;
+        }
+        .table tbody td {
+            padding: 15px;
+            border-color: #f1f3f5;
+        }
+        .badge-type {
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+        .modal-content {
+            border: none;
+            border-radius: 20px;
+            overflow: hidden;
+        }
+        .btn-detail {
+            border-radius: 10px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .btn-detail:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(13, 110, 253, 0.2);
+        }
+    </style>
 
-            <div class="col-md-4">
-                <div class="card p-3 text-center shadow-sm">
-                    <h6>Tổng tiền đã chi</h6>
-                    <h3 class="text-primary"
-                        th:text="${totalSpent} + ' VND'">
-                    </h3>
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="card summary-card p-4 shadow-sm text-center">
+                <div class="mb-2 opacity-75 text-uppercase small fw-bold">Tổng chi tiêu tích lũy</div>
+                <h2 class="fw-bold mb-0" th:text="${#numbers.formatDecimal(totalSpent, 0, 'COMMA', 0, 'POINT')} + ' ₫'"></h2>
+                <div class="mt-3">
+                    <i class="fas fa-wallet fa-3x opacity-25"></i>
                 </div>
             </div>
+        </div>
 
-            <div class="col-md-8">
-                <div class="card p-3 shadow-sm">
-                    <h6>Mua sắm trong tuần</h6>
+        <div class="col-md-8">
+            <div class="card data-card p-4 shadow-sm">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h6 class="fw-bold text-dark mb-0"><i class="fas fa-chart-line me-2 text-primary"></i>Xu hướng chi tiêu</h6>
+                    <small class="text-muted">Dữ liệu theo tháng</small>
+                </div>
+                <div style="height: 200px;">
                     <canvas id="orderChart"></canvas>
                 </div>
             </div>
-
         </div>
     </div>
 
-    <!-- ===== ORDER LIST ===== -->
-    <div class="card shadow-sm p-4">
-        <h5 class="mb-3">Danh sách đơn hàng</h5>
+    <div class="card data-card p-4 shadow-sm">
+        <div class="d-flex align-items-center mb-4">
+            <div class="bg-light text-primary rounded-3 p-2 me-3">
+                <i class="fas fa-history fa-lg"></i>
+            </div>
+            <h5 class="fw-bold mb-0">Lịch sử đơn hàng</h5>
+        </div>
 
-        <table class="table table-hover align-middle">
-            <thead class="table-light">
-            <tr>
-                <th>ID</th>
-                <th>Ngày</th>
-                <th>Tổng tiền</th>
-                <th>Loại</th>
-                <th>Action</th>
-            </tr>
-            </thead>
-
-            <tbody>
-            <tr th:each="o : ${orders}">
-                <td th:text="${o.id}"></td>
-                <td th:text="${#temporals.format(o.openedAt,'dd/MM/yyyy HH:mm')}"></td>
-                <td th:text="${o.totalAmount} + ' VND'"></td>
-                <td th:text="${o.orderType}"></td>
-                <td>
-                    <button class="btn btn-sm btn-primary"
-                            th:attr="onclick='showDetail(' + ${o.id} + ')'">
-                        Chi tiết
-                    </button>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Thời gian đặt</th>
+                    <th>Tổng tiền</th>
+                    <th>Phương thức</th>
+                    <th class="text-end">Thao tác</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="o : ${orders}">
+                    <td class="text-muted fw-bold" th:text="'#' + ${o.id}"></td>
+                    <td>
+                        <div class="small fw-bold text-dark" th:text="${#temporals.format(o.openedAt,'dd/MM/yyyy')}"></div>
+                        <div class="text-muted small" th:text="${#temporals.format(o.openedAt,'HH:mm')}"></div>
+                    </td>
+                    <td>
+                        <span class="text-primary fw-bold"
+                              th:text="${#numbers.formatDecimal(o.totalAmount, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                        </span>
+                    </td>
+                    <td>
+                        <span class="badge-type bg-light text-primary border" th:text="${o.orderType}"></span>
+                    </td>
+                    <td class="text-end">
+                        <button class="btn btn-sm btn-outline-primary btn-detail px-3"
+                                th:attr="onclick='showDetail(' + ${o.id} + ')'">
+                            <i class="fas fa-eye me-1"></i> Chi tiết
+                        </button>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 
-    <!-- ===== ORDER DETAIL MODAL ===== -->
-    <div class="modal fade" id="orderModal">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-
-                <div class="modal-header">
-                    <h5>Chi tiết đơn hàng</h5>
-                    <button class="btn-close" data-bs-dismiss="modal"></button>
+    <div class="modal fade" id="orderModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content shadow-lg">
+                <div class="modal-header border-0 bg-light p-4">
+                    <h5 class="modal-title fw-bold"><i class="fas fa-receipt me-2"></i>Chi tiết đơn hàng</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-
-                <div class="modal-body">
-                    <table class="table">
-                        <thead>
-                        <tr>
-                            <th>Món</th>
-                            <th>Số lượng</th>
-                            <th>Giá</th>
-                        </tr>
-                        </thead>
-                        <tbody id="orderDetailBody"></tbody>
-                    </table>
+                <div class="modal-body p-4">
+                    <div class="table-responsive">
+                        <table class="table align-middle">
+                            <thead class="table-light">
+                            <tr>
+                                <th>Tên món</th>
+                                <th class="text-center">Số lượng</th>
+                                <th class="text-end">Đơn giá</th>
+                                <th class="text-end">Thành tiền</th>
+                            </tr>
+                            </thead>
+                            <tbody id="orderDetailBody"></tbody>
+                        </table>
+                    </div>
                 </div>
-
+                <div class="modal-footer border-0 p-4">
+                    <button type="button" class="btn btn-secondary rounded-pill px-4" data-bs-dismiss="modal">Đóng</button>
+                </div>
             </div>
         </div>
     </div>
-
-    <!-- ===== JS ===== -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script th:inline="javascript">
-
         // ===== CHART =====
-        const labels = /*[[${monthLabels}]]*/ [];
-        const data = /*[[${monthValues}]]*/ [];
+        const labels = [[${monthLabels}]] || [];
+        const dataValues = [[${monthValues}]] || [];
 
-        new Chart(document.getElementById("orderChart"), {
+        const ctx = document.getElementById("orderChart").getContext('2d');
+        new Chart(ctx, {
             type: "line",
             data: {
                 labels: labels,
                 datasets: [{
-                    label: "Chi tiêu theo tháng",
-                    data: data,
-                    borderColor: "#0d6efd",
-                    fill: false
+                    label: "Chi tiêu (₫)",
+                    data: dataValues,
+                    borderColor: "#4e73df",
+                    backgroundColor: "rgba(78, 115, 223, 0.1)",
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointBackgroundColor: "#4e73df"
                 }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: { drawBorder: false, color: '#f8f9fa' },
+                        ticks: { callback: (val) => val.toLocaleString() + ' ₫' }
+                    },
+                    x: { grid: { display: false } }
+                }
             }
         });
 
         // ===== SHOW DETAIL =====
         function showDetail(id) {
+            const formatVND = (num) => num.toLocaleString('vi-VN') + " ₫";
 
             fetch("/customer/orders/detail/" + id)
                 .then(res => {
@@ -120,35 +207,27 @@
                     return res.json();
                 })
                 .then(data => {
-
                     let html = "";
-
                     data.forEach(i => {
                         html += `
                         <tr>
-                            <td>${i.food.name}</td>
-                            <td>${i.quantity}</td>
-                            <td>${i.food.price} VND</td>
+                            <td class="fw-bold text-dark">${i.food.name}</td>
+                            <td class="text-center">x${i.quantity}</td>
+                            <td class="text-end text-muted">${formatVND(i.food.price)}</td>
+                            <td class="text-end fw-bold text-primary">${formatVND(i.food.price * i.quantity)}</td>
                         </tr>
                         `;
                     });
 
                     document.getElementById("orderDetailBody").innerHTML = html;
-
-                    const modal = bootstrap.Modal.getOrCreateInstance(
-                        document.getElementById('orderModal')
-                    );
+                    const modal = new bootstrap.Modal(document.getElementById('orderModal'));
                     modal.show();
                 })
                 .catch(err => {
                     console.error(err);
-                    alert("Lỗi tải chi tiết đơn hàng!");
+                    alert("Không thể tải thông tin chi tiết!");
                 });
         }
-
     </script>
-    ```
-
 </div>
-
 </html>

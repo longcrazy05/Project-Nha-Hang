@@ -3,151 +3,200 @@
       th:replace="layout/main :: layout(~{::content}, 'Employee List')">
 
 <div th:fragment="content">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- Header -->
+    <style>
+        .table-card {
+            border: none;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+            background: #fff;
+        }
+        .table thead th {
+            background-color: #f8f9fa;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.5px;
+            font-weight: 700;
+            color: #6c757d;
+            border-top: none;
+            padding: 15px;
+        }
+        .table tbody td {
+            padding: 15px;
+            vertical-align: middle;
+            color: #495057;
+        }
+        .avatar-circle {
+            width: 35px;
+            height: 35px;
+            background-color: #e9ecef;
+            color: #4e73df;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            font-weight: bold;
+            margin-right: 10px;
+        }
+        .badge-dept {
+            background-color: #e8f0fe;
+            color: #1967d2;
+            font-weight: 500;
+            padding: 6px 12px;
+            border-radius: 8px;
+        }
+        .password-container {
+            background: #f1f3f4;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .btn-action {
+            width: 32px;
+            height: 32px;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            transition: all 0.2s;
+        }
+        .btn-add {
+            background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+        .btn-add:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(78, 115, 223, 0.3);
+        }
+    </style>
+
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2 class="fw-bold">👨‍💼 Employee List</h2>
+        <div>
+            <h2 class="fw-bold text-dark mb-1">👨‍💼 Quản lý Nhân sự</h2>
+            <p class="text-muted small mb-0">Xem và quản lý thông tin nhân viên trong hệ thống</p>
+        </div>
 
-        <a class="btn btn-primary px-3"
-           th:href="@{/admin/employees/create}">
-            + Add Employee
+        <a class="btn btn-primary btn-add px-4 py-2" th:href="@{/admin/employees/create}">
+            <i class="fas fa-plus-circle me-2"></i>Thêm nhân viên
         </a>
     </div>
 
-    <!-- Table Card -->
-    <div class="card p-3">
-
+    <div class="card table-card overflow-hidden">
         <div class="table-responsive">
-            <table class="table table-hover align-middle">
-
-                <thead class="table-light">
+            <table class="table table-hover mb-0">
+                <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th>Department</th>
-                    <th>Salary</th>
-                    <th>Username</th>
-                    <th>Password</th>
-                    <th width="180">Actions</th>
+                    <th>Nhân viên</th>
+                    <th>Liên hệ</th>
+                    <th>Phòng ban</th>
+                    <th>Mức lương</th>
+                    <th>Tài khoản</th>
+                    <th class="text-end">Hành động</th>
                 </tr>
                 </thead>
-
                 <tbody>
                 <tr th:each="emp : ${employees}">
+                    <td class="text-muted" th:text="'#' + ${emp.id}"></td>
 
-                    <td th:text="${emp.id}"></td>
-
-                    <td class="fw-semibold"
-                        th:text="${emp.name}"></td>
-
-                    <td th:text="${emp.email}"></td>
-
-                    <td th:text="${emp.phone}"></td>
-
-                    <td>
-                        <span class="badge bg-secondary"
-                              th:text="${emp.department}"></span>
-                    </td>
-
-                    <td class="text-success fw-semibold"
-                        th:text="${emp.salary}"></td>
-
-                    <td th:text="${emp.username}"></td>
-
-                    <!-- PASSWORD COLUMN -->
                     <td>
                         <div class="d-flex align-items-center">
-
-                            <span class="me-2 password-text fixed-password"
-                                  th:data-password="${emp.password}">
-                                ••••••••
-                            </span>
-
-                            <button type="button"
-                                    class="btn btn-sm btn-outline-secondary toggle-password">
-                                👁
-                            </button>
-
+                            <div class="avatar-circle shadow-sm" th:text="${#strings.substring(emp.name,0,1)}"></div>
+                            <div>
+                                <div class="fw-bold text-dark" th:text="${emp.name}"></div>
+                                <div class="text-muted small" th:text="${emp.email}"></div>
+                            </div>
                         </div>
                     </td>
 
-                    <!-- ACTIONS -->
                     <td>
-
-                        <a class="btn btn-sm btn-warning me-1"
-                           th:href="@{/admin/employees/edit/{id}(id=${emp.id})}">
-                            ✏️ Edit
-                        </a>
-
-                        <form th:action="@{/admin/employees/delete/{id}(id=${emp.id})}"
-                              method="post"
-                              style="display:inline"
-                              th:onsubmit="return confirm('Delete employee:\n'
-                                + 'Name: [[${emp.name}]]\n'
-                                + 'Phone: [[${emp.phone}]]\n'
-                                + 'Department: [[${emp.department}]]\n'
-                                + 'Salary: [[${emp.salary}]]\n\n'
-                                + 'Are you sure?')">
-
-                            <button class="btn btn-sm btn-danger" type="submit">
-                                🗑 Delete
-                            </button>
-                        </form>
-
+                        <div class="small"><i class="fas fa-phone me-2 text-muted"></i><span th:text="${emp.phone}"></span></div>
                     </td>
 
+                    <td>
+                        <span class="badge-dept small text-uppercase" th:text="${emp.department}"></span>
+                    </td>
+
+                    <td>
+                        <div class="fw-bold text-success"
+                             th:text="${#numbers.formatDecimal(emp.salary, 0, 'COMMA', 0, 'POINT')} + ' ₫'">
+                        </div>
+                    </td>
+
+                    <td>
+                        <div class="d-flex flex-column gap-1">
+                            <span class="small fw-bold text-dark" th:text="${emp.username}"></span>
+                            <div class="d-flex align-items-center">
+                                <span class="password-container small text-muted me-2 password-text"
+                                      th:data-password="${emp.password}">••••••••</span>
+                                <a href="javascript:void(0)" class="text-primary toggle-password" style="text-decoration: none;">
+                                    <i class="fas fa-eye fa-xs"></i>
+                                </a>
+                            </div>
+                        </div>
+                    </td>
+
+                    <td class="text-end">
+                        <div class="d-flex justify-content-end gap-2">
+                            <a class="btn btn-outline-warning btn-action shadow-sm"
+                               th:href="@{/admin/employees/edit/{id}(id=${emp.id})}"
+                               title="Chỉnh sửa">
+                                <i class="fas fa-pen fa-xs"></i>
+                            </a>
+
+                            <form th:action="@{/admin/employees/delete/{id}(id=${emp.id})}"
+                                  method="post"
+                                  class="d-inline"
+                                  th:onsubmit="return confirm('Bạn có chắc chắn muốn xoá nhân viên: ' + [[${emp.name}]] + '?')">
+                                <button class="btn btn-outline-danger btn-action shadow-sm" type="submit" title="Xoá">
+                                    <i class="fas fa-trash fa-xs"></i>
+                                </button>
+                            </form>
+                        </div>
+                    </td>
                 </tr>
                 </tbody>
-
             </table>
         </div>
-
     </div>
-    <style>
-        .fixed-password {
-            display: inline-block;
-            min-width: 120px; /* 👉 chỉnh tùy ý */
-            font-family: monospace; /* giữ độ rộng ký tự đều */
-        }
-    </style>
-    <!-- SCRIPT SHOW/HIDE PASSWORD -->
+
     <script>
         document.querySelectorAll('.toggle-password').forEach(btn => {
-
             btn.addEventListener('click', function () {
-
                 const span = this.parentElement.querySelector('.password-text');
+                const icon = this.querySelector('i');
                 const realPass = span.getAttribute('data-password');
 
                 if (span.textContent === '••••••••') {
                     span.textContent = realPass;
-                    this.textContent = '🙈';
+                    icon.classList.replace('fa-eye', 'fa-eye-slash');
+                    span.classList.add('text-dark');
                 } else {
                     span.textContent = '••••••••';
-                    this.textContent = '👁';
+                    icon.classList.replace('fa-eye-slash', 'fa-eye');
+                    span.classList.remove('text-dark');
                 }
-
             });
-
         });
     </script>
-    <!-- WebSocket auto reload -->
+
     <script src="https://cdn.jsdelivr.net/npm/sockjs-client@1/dist/sockjs.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/stompjs/lib/stomp.min.js"></script>
 
     <script>
         let socket = new WebSocket(`ws://${location.host}/ws`);
         let stompClient = Stomp.over(socket);
+        stompClient.debug = null; // Tắt log để giao diện sạch hơn
 
         stompClient.connect({}, function () {
-
             stompClient.subscribe('/topic/employee', function () {
                 location.reload();
             });
         });
-
     </script>
 </div>
 </html>

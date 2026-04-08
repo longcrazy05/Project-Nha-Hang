@@ -3,128 +3,202 @@
       th:replace="layout/customer :: layout(~{::content}, 'Profile')">
 
 <div th:fragment="content">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
   <style>
-    .profile-card {
-        border: none;
-        border-radius: 15px;
-        transition: box-shadow 0.3s ease;
+    .profile-container {
+      max-width: 900px;
+      margin: 0 auto;
     }
-    .profile-card:hover {
-        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1) !important;
+    .profile-card {
+      border: none;
+      border-radius: 20px;
+      background: #fff;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+    }
+    .profile-header {
+      background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+      padding: 40px;
+      color: white;
+      text-align: center;
+    }
+    .profile-avatar {
+      width: 100px;
+      height: 100px;
+      background: rgba(255,255,255,0.2);
+      border: 4px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 40px;
+      margin: 0 auto 15px;
+    }
+    .form-section {
+      padding: 40px;
+    }
+    .form-label {
+      font-weight: 600;
+      color: #495057;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .input-group-text {
+      background-color: #f8f9fa;
+      border-right: none;
+      color: #6c757d;
+      border-radius: 10px 0 0 10px;
     }
     .form-control {
-        border-radius: 8px;
-        padding: 10px 15px;
+      border-radius: 10px;
+      padding: 12px 15px;
+      border: 1px solid #dee2e6;
+      font-size: 0.95rem;
     }
     .form-control:focus {
-        box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+      border-color: #4e73df;
+      box-shadow: 0 0 0 0.25rem rgba(78, 115, 223, 0.1);
     }
-    .btn-toggle-pass {
-        border-radius: 0 8px 8px 0 !important;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 45px;
+    .has-icon .form-control {
+      border-left: none;
+      border-radius: 0 10px 10px 0;
+    }
+    .readonly-input {
+      background-color: #f1f3f9 !important;
+      cursor: not-allowed;
     }
     .btn-save {
-        border-radius: 8px;
-        padding: 10px 25px;
-        font-weight: 500;
+      background: linear-gradient(135deg, #4e73df 0%, #224abe 100%);
+      border: none;
+      border-radius: 12px;
+      padding: 12px 35px;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    .btn-save:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(78, 115, 223, 0.4);
+    }
+    .btn-toggle-pass {
+      border-radius: 0 10px 10px 0 !important;
+      border-left: none;
+      color: #6c757d;
     }
   </style>
 
-  <div class="card shadow-sm p-4 profile-card">
+  <div class="profile-container">
+    <div class="card profile-card shadow-sm">
 
-    <h4 class="mb-1 fw-bold">Hồ Sơ Của Tôi</h4>
-    <p class="text-muted mb-4">Quản lý thông tin cá nhân của bạn</p>
-
-    <form th:action="@{/customer/profile/update}" th:object="${customer}" method="post">
-
-      <input type="hidden" name="id" th:value="${customer.id}">
-
-      <div class="row">
-
-        <div class="col-md-6 mb-3">
-          <label class="form-label fw-semibold">Username</label>
-          <input type="text"
-                 name="username"
-                 class="form-control bg-light"
-                 th:value="${customer.username}"
-                 readonly>
-          <small class="text-muted">
-            * Username không thể thay đổi
-          </small>
+      <div class="profile-header">
+        <div class="profile-avatar">
+          <i class="fas fa-user-circle"></i>
         </div>
-
-        <div class="col-md-6 mb-3">
-          <label class="form-label fw-semibold">Name</label>
-          <input type="text"
-                 class="form-control"
-                 name="name"
-                 th:value="${customer.name}">
-        </div>
-
-        <div class="col-md-6 mb-3">
-          <label class="form-label fw-semibold">Email</label>
-          <input type="email"
-                 class="form-control"
-                 name="email"
-                 th:value="${customer.email}">
-        </div>
-
-        <div class="col-md-6 mb-3">
-          <label class="form-label fw-semibold">Phone</label>
-          <input type="text"
-                 class="form-control"
-                 name="phone"
-                 th:value="${customer.phone}">
-        </div>
-
-        <div class="col-md-6 mb-3">
-          <label class="form-label fw-semibold">Password</label>
-
-          <div class="input-group">
-            <input type="password"
-                   class="form-control border-end-0"
-                   name="password"
-                   id="password"
-                   th:value="${customer.password}">
-
-            <button class="btn btn-outline-secondary btn-toggle-pass"
-                    type="button"
-                    onclick="togglePassword()">
-              <span id="toggleIcon">👁️</span>
-            </button>
-          </div>
-
-        </div>
-
+        <h3 class="mb-1 fw-bold" th:text="${customer.name}">Tên Khách Hàng</h3>
+        <p class="mb-0 opacity-75 small">Thành viên thân thiết</p>
       </div>
 
-      <button type="submit" class="btn btn-primary mt-3 btn-save">
-        💾 Lưu thay đổi
-      </button>
+      <div class="form-section">
+        <form th:action="@{/customer/profile/update}" th:object="${customer}" method="post">
+          <input type="hidden" name="id" th:value="${customer.id}">
 
-    </form>
+          <div class="row g-4">
+            <div class="col-md-6">
+              <label class="form-label"><i class="fas fa-id-badge me-2"></i>Username</label>
+              <div class="input-group has-icon">
+                <span class="input-group-text"><i class="fas fa-at"></i></span>
+                <input type="text"
+                       name="username"
+                       class="form-control readonly-input"
+                       th:value="${customer.username}"
+                       readonly>
+              </div>
+              <small class="text-muted italic mt-1 d-block" style="font-size: 0.75rem;">
+                * Tên đăng nhập không thể thay đổi
+              </small>
+            </div>
 
+            <div class="col-md-6">
+              <label class="form-label"><i class="fas fa-user me-2"></i>Họ và Tên</label>
+              <div class="input-group has-icon">
+                <span class="input-group-text"><i class="fas fa-signature"></i></span>
+                <input type="text"
+                       class="form-control"
+                       name="name"
+                       th:value="${customer.name}"
+                       placeholder="Nhập họ tên...">
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label"><i class="fas fa-envelope me-2"></i>Email</label>
+              <div class="input-group has-icon">
+                <span class="input-group-text"><i class="fas fa-envelope-open text-muted"></i></span>
+                <input type="email"
+                       class="form-control"
+                       name="email"
+                       th:value="${customer.email}"
+                       placeholder="example@gmail.com">
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label"><i class="fas fa-phone me-2"></i>Số điện thoại</label>
+              <div class="input-group has-icon">
+                <span class="input-group-text"><i class="fas fa-mobile-alt text-muted"></i></span>
+                <input type="text"
+                       class="form-control"
+                       name="phone"
+                       th:value="${customer.phone}"
+                       placeholder="09xx xxx xxx">
+              </div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label"><i class="fas fa-lock me-2"></i>Mật khẩu</label>
+              <div class="input-group has-icon">
+                <span class="input-group-text"><i class="fas fa-key text-muted"></i></span>
+                <input type="password"
+                       class="form-control border-end-0"
+                       name="password"
+                       id="password"
+                       th:value="${customer.password}">
+                <button class="btn btn-outline-secondary btn-toggle-pass"
+                        type="button"
+                        onclick="togglePassword()">
+                  <i id="toggleIcon" class="fas fa-eye"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-center mt-5">
+            <button type="submit" class="btn btn-primary btn-save">
+              <i class="fas fa-save me-2"></i>Lưu thay đổi hồ sơ
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 
   <script>
     function togglePassword() {
-        let passInput = document.getElementById("password");
-        let icon = document.getElementById("toggleIcon");
+      let passInput = document.getElementById("password");
+      let icon = document.getElementById("toggleIcon");
 
-        if (passInput.type === "password") {
-            passInput.type = "text";
-            icon.textContent = "🙈"; // Đổi thành icon nhắm mắt khi hiện pass
-        } else {
-            passInput.type = "password";
-            icon.textContent = "👁️"; // Đổi lại icon mở mắt khi ẩn pass
-        }
+      if (passInput.type === "password") {
+        passInput.type = "text";
+        icon.classList.remove("fa-eye");
+        icon.classList.add("fa-eye-slash");
+      } else {
+        passInput.type = "password";
+        icon.classList.remove("fa-eye-slash");
+        icon.classList.add("fa-eye");
+      }
     }
   </script>
 
 </div>
-
 </html>

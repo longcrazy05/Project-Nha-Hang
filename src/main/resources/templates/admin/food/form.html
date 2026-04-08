@@ -3,133 +3,220 @@
       th:replace="layout/main :: layout(~{::content}, 'Food Form')">
 
 <div th:fragment="content">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-  <div class="card p-4">
-
-    <!-- Title -->
-    <h4 class="mb-4 fw-bold"
-        th:text="${food.id} == null ? '➕ Add Food' : '✏️ Edit Food'">
-    </h4>
-
-    <form th:action="@{/admin/foods/save}"
-          th:object="${food}"
-          method="post"
-          enctype="multipart/form-data">
-
-      <input type="hidden" th:field="*{id}"/>
-      <input type="hidden" th:field="*{image_url}"/>
-
-      <div class="row g-4">
-
-        <!-- LEFT -->
-        <div class="col-md-6">
-
-          <div class="mb-3">
-            <label class="form-label">Name</label>
-            <input class="form-control"
-                   type="text"
-                   th:field="*{name}" required>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">Price</label>
-            <input class="form-control"
-                   type="number"
-                   th:field="*{price}" required>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">Category</label>
-            <input class="form-control"
-                   type="text"
-                   th:field="*{category}" required>
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">Description</label>
-            <textarea class="form-control"
-                      rows="1"
-                      th:field="*{description}"></textarea>
-          </div>
-
-        </div>
-
-        <!-- RIGHT -->
-        <div class="col-md-6">
-
-          <div class="mb-3 text-center">
-
-            <label class="form-label d-block">Current Image</label>
-
-            <img th:if="${food.image_url != null}"
-                 th:src="@{'/images/' + ${food.image_url}}"
-                 class="preview-img mb-3">
-
-            <div th:if="${food.image_url == null}"
-                 class="no-image mb-3">
-              No Image
-            </div>
-
-          </div>
-
-          <div class="mb-3">
-            <label class="form-label">Upload Image</label>
-            <input class="form-control" type="file" name="image">
-          </div>
-
-          <div class="form-check form-switch mt-4">
-            <input class="form-check-input"
-                   type="checkbox"
-                   th:field="*{available}">
-            <label class="form-check-label">
-              Available
-            </label>
-          </div>
-
-        </div>
-
-      </div>
-
-      <!-- ACTIONS -->
-      <div class="mt-4">
-
-        <button class="btn btn-success px-4" type="submit">
-          💾 Save
-        </button>
-
-        <a class="btn btn-secondary ms-2"
-           th:href="@{/admin/foods}">
-          Cancel
-        </a>
-
-      </div>
-
-    </form>
-
-  </div>
-
-  <!-- CSS -->
   <style>
-    .preview-img {
-        width: 140px;
-        height: 140px;
-        object-fit: cover;
-        border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    .form-card {
+      border: none;
+      border-radius: 20px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      background: #fff;
     }
-
+    .section-title {
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #6c757d;
+      border-bottom: 2px solid #f8f9fa;
+      padding-bottom: 10px;
+      margin-bottom: 25px;
+    }
+    .form-label {
+      font-weight: 600;
+      color: #495057;
+    }
+    .form-control, .form-select {
+      border-radius: 10px;
+      padding: 12px 15px;
+      border: 1px solid #dee2e6;
+      transition: all 0.3s;
+    }
+    .form-control:focus {
+      border-color: #4e73df;
+      box-shadow: 0 0 0 0.2rem rgba(78, 115, 223, 0.1);
+    }
+    /* Image Preview Style */
+    .image-upload-wrapper {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      margin: 0 auto;
+    }
+    .preview-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 15px;
+      border: 4px solid #fff;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
     .no-image {
-        width: 140px;
-        height: 140px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border: 2px dashed #ccc;
-        border-radius: 12px;
-        color: #888;
-        font-size: 14px;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      background-color: #f8f9fa;
+      border: 2px dashed #cbd5e0;
+      border-radius: 15px;
+      color: #a0aec0;
+    }
+    /* Custom Switch */
+    .form-switch .form-check-input {
+      width: 3em;
+      height: 1.5em;
+      cursor: pointer;
+    }
+    .btn-save {
+      background: linear-gradient(135deg, #2dce89 0%, #2dcecc 100%);
+      border: none;
+      color: white;
+      padding: 12px 30px;
+      font-weight: 600;
+      border-radius: 10px;
+      transition: all 0.3s;
+    }
+    .btn-save:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(45, 206, 137, 0.3);
+    }
+    .btn-cancel {
+      border-radius: 10px;
+      padding: 12px 25px;
     }
   </style>
 
+  <div class="container py-4">
+    <div class="row justify-content-center">
+      <div class="col-lg-10">
+        <div class="card form-card p-4 p-md-5">
+
+          <div class="d-flex align-items-center mb-5">
+            <div class="bg-warning text-white rounded-3 p-3 me-3 shadow-sm">
+              <i th:class="${food.id == null ? 'fas fa-plus fa-lg' : 'fas fa-utensils fa-lg'}"></i>
+            </div>
+            <div>
+              <h3 class="mb-0 fw-bold text-dark"
+                  th:text="${food.id} == null ? 'Add New Food Item' : 'Edit Food Details'">
+              </h3>
+              <p class="text-muted mb-0 small">Cập nhật thông tin món ăn và hình ảnh hiển thị trên menu.</p>
+            </div>
+          </div>
+
+          <form th:action="@{/admin/foods/save}"
+                th:object="${food}"
+                method="post"
+                enctype="multipart/form-data">
+
+            <input type="hidden" th:field="*{id}"/>
+            <input type="hidden" th:field="*{image_url}"/>
+
+            <div class="row g-5">
+
+              <div class="col-md-7">
+                <h6 class="section-title"><i class="fas fa-info-circle me-2"></i>General Information</h6>
+
+                <div class="mb-4">
+                  <label class="form-label">Food Name</label>
+                  <div class="input-group">
+                    <span class="input-group-text bg-light border-end-0"><i class="fas fa-hamburger text-muted"></i></span>
+                    <input class="form-control border-start-0" type="text" th:field="*{name}" placeholder="e.g. Grilled Chicken" required>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="col-md-6 mb-4">
+                    <label class="form-label">Price (VND)</label>
+                    <div class="input-group">
+                      <span class="input-group-text bg-light border-end-0"><i class="fas fa-tag text-muted"></i></span>
+                      <input class="form-control border-start-0" type="number" th:field="*{price}" placeholder="50000" required>
+                    </div>
+                  </div>
+                  <div class="col-md-6 mb-4">
+                    <label class="form-label">Category</label>
+                    <div class="input-group">
+                      <span class="input-group-text bg-light border-end-0"><i class="fas fa-list text-muted"></i></span>
+                      <input class="form-control border-start-0" type="text" th:field="*{category}" placeholder="Pizza, Drinks..." required>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mb-4">
+                  <label class="form-label">Description</label>
+                  <textarea class="form-control" rows="4" th:field="*{description}" placeholder="Describe the ingredients or taste..."></textarea>
+                </div>
+              </div>
+
+              <div class="col-md-5">
+                <h6 class="section-title"><i class="fas fa-image me-2"></i>Media & Status</h6>
+
+                <div class="mb-4 text-center">
+                  <label class="form-label d-block mb-3 text-muted">Food Preview</label>
+                  <div class="image-upload-wrapper">
+                    <img th:if="${food.image_url != null}"
+                         th:src="@{'/images/' + ${food.image_url}}"
+                         id="imgPreview"
+                         class="preview-img">
+
+                    <div th:if="${food.image_url == null}" id="noImg" class="no-image">
+                      <i class="fas fa-cloud-upload-alt fa-3x mb-2"></i>
+                      <span class="small">No Image Yet</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mb-4">
+                  <label class="form-label">Change Image</label>
+                  <input class="form-control" type="file" name="image" id="imageInput" accept="image/*">
+                  <div class="form-text small">Recommended size: 800x800 px (JPG/PNG)</div>
+                </div>
+
+                <div class="card bg-light border-0 p-3 mt-4">
+                  <div class="form-check form-switch d-flex justify-content-between align-items-center p-0">
+                    <label class="form-check-label fw-bold text-dark ms-0">Available in Menu</label>
+                    <input class="form-check-input ms-0" type="checkbox" th:field="*{available}" role="switch">
+                  </div>
+                  <small class="text-muted mt-2">Món ăn sẽ bị ẩn nếu bạn tắt tuỳ chọn này.</small>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="mt-5 d-flex justify-content-end border-top pt-4">
+              <a class="btn btn-light btn-cancel me-2 fw-bold text-muted" th:href="@{/admin/foods}">
+                Cancel
+              </a>
+              <button class="btn btn-save shadow-sm" type="submit">
+                <i class="fas fa-save me-2"></i>Save Food Item
+              </button>
+            </div>
+
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    document.getElementById('imageInput').onchange = evt => {
+      const [file] = document.getElementById('imageInput').files
+      if (file) {
+        let preview = document.getElementById('imgPreview');
+        let noImg = document.getElementById('noImg');
+
+        // Nếu chưa có thẻ img thì tạo mới (trường hợp Add New)
+        if(!preview){
+          const newImg = document.createElement('img');
+          newImg.id = 'imgPreview';
+          newImg.className = 'preview-img';
+          noImg.parentNode.replaceChild(newImg, noImg);
+          preview = newImg;
+        }
+
+        preview.src = URL.createObjectURL(file);
+      }
+    }
+  </script>
 </div>
 </html>
