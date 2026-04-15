@@ -118,7 +118,7 @@
                                     <div class="d-flex align-items-center justify-content-between gap-2">
                                         <div class="d-flex qty-control">
                                             <button type="button" th:onclick="updateInputQty('qty-[[${f.id}]]', -1)">-</button>
-                                            <input type="number" class="qty-input text-center" th:id="'qty-' + ${f.id}" value="1" min="1" readonly>
+                                            <input type="number" class="qty-input text-center" th:id="'qty-' + ${f.id}" value="1" min="1" >
                                             <button type="button" th:onclick="updateInputQty('qty-[[${f.id}]]', 1)">+</button>
                                         </div>
                                         <button class="btn btn-primary rounded-3 flex-grow-1"

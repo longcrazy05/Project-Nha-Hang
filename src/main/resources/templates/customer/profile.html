@@ -96,7 +96,9 @@
           <i class="fas fa-user-circle"></i>
         </div>
         <h3 class="mb-1 fw-bold" th:text="${customer.name}">Tên Khách Hàng</h3>
-        <p class="mb-0 opacity-75 small">Thành viên thân thiết</p>
+        <p class="mb-0 opacity-75 small">
+          Thành viên thân thiết | Mã KH: <span class="fw-bold" th:text="${'#' + customer.id}">#</span>
+        </p>
       </div>
 
       <div class="form-section">

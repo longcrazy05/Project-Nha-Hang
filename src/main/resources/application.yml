@@ -34,4 +34,4 @@ logging:
     org.hibernate.type.descriptor.sql.BasicBinder: trace
 
 upload:
-  path: D:/STUDY/Sping_Boot/img_ttcs/upload/
+  path: D:\img_ttcs\upload
